@@ -16,8 +16,49 @@ from typing import List, Tuple, Union
 # ]
 # ------------------------------------------------------------
 TASKS: List[Union[str, List[str]]] = [
-    "train_rl_local_search.py --config config/experiment_rl_algo/dqn_set2.yaml --ls_initial_solution",
-    "train_rl_local_search.py --config config/experiment_rl_algo/dqn_set2_shorter.yaml",
+    # 1. Qwen Instruct - Direct Prompt ($0.08)
+    [
+        "experiments/run_experiment.py",
+        "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+        "--prompt", "direct",
+        "--input", "train_data/subtask 1/train_data.json",
+        "--output", "predictions/qwen_instruct_direct.json",
+        "--evaluate",
+        "--reference", "train_data/subtask 1/train_data.json"
+    ],
+
+    # 2. Qwen Instruct - Chain of Thought Prompt ($0.12)
+    [
+        "experiments/run_experiment.py",
+        "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+        "--prompt", "cot",
+        "--input", "train_data/subtask 1/train_data.json",
+        "--output", "predictions/qwen_instruct_cot.json",
+        "--evaluate",
+        "--reference", "train_data/subtask 1/train_data.json"
+    ],
+
+    # 3. Qwen Thinking - Direct Prompt ($1.20) ⭐ RECOMMENDED
+    [
+        "experiments/run_experiment.py",
+        "--model", "qwen/qwen3-vl-235b-a22b-thinking",
+        "--prompt", "direct",
+        "--input", "train_data/subtask 1/train_data.json",
+        "--output", "predictions/qwen_thinking_direct.json",
+        "--evaluate",
+        "--reference", "train_data/subtask 1/train_data.json"
+    ],
+
+    # 4. Qwen Thinking - Chain of Thought Prompt ($3.60) ⚠️ EXPENSIVE
+    [
+        "experiments/run_experiment.py",
+        "--model", "qwen/qwen3-vl-235b-a22b-thinking",
+        "--prompt", "cot",
+        "--input", "train_data/subtask 1/train_data.json",
+        "--output", "predictions/qwen_thinking_cot.json",
+        "--evaluate",
+        "--reference", "train_data/subtask 1/train_data.json"
+    ],
 ]
 
 
