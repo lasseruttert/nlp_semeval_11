@@ -2,13 +2,13 @@
 Main experiment runner for SemEval 2026 Task 11 - Subtask 1.
 
 Usage:
-    python experiments/run_experiment.py \\
-        --model "anthropic/claude-3.5-sonnet" \\
-        --prompt "direct" \\
-        --input "train_data/subtask 1/train_data.json" \\
-        --output "predictions/test_predictions.json" \\
-        --evaluate \\
-        --reference "train_data/subtask 1/train_data.json"
+    poetry run python experiments/run_experiment.py --model "anthropic/claude-3.5-sonnet" --prompt "direct" --input "train_data/subtask 1/train_data.json" --output "predictions/test_predictions.json" --evaluate --reference "train_data/subtask 1/train_data.json"
+
+    If syllogisms categorical form is present in the data/polished folder then:
+
+    poetry run python experiments/run_experiment.py --model "anthropic/claude-3.5-sonnet" --prompt "direct" --input "data/polished/polished_syllogisms_variables.json" --output "predictions/test_predictions_syllogisms_variables.json" --evaluate --reference "train_data/subtask 1/train_data.json"
+
+    poetry run python experiments/run_experiment.py --model "anthropic/claude-3.5-sonnet" --prompt "direct" --input "data/polished/polished_syllogisms.json" --output "predictions/test_predictions_syllogisms.json" --evaluate --reference "train_data/subtask 1/train_data.json"
 
     Results are automatically saved to CSV with filename:
         experiments/results_{model}_{prompt}.csv
