@@ -13,7 +13,7 @@ The JSON schema is IDENTICAL to the input:
 ]
 
 Usage:
-    poetry run python experiments/run_experiment2.py --model "qwen/qwen3-vl-235b-a22b-instruct" --input "train_data/subtask 1/train_data.json" --output "data/polished/polished_syllogisms_variables.json"
+    poetry run python experiments/run_experiment2.1.py --model "qwen/qwen3-vl-235b-a22b-instruct" --input "train_data/subtask 1/train_data.json" --output "data/polished/polished_syllogisms_variables.json"
 
 Optional:
     --limit 100

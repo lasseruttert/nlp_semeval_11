@@ -168,8 +168,6 @@ PROMPT_TEMPLATES: dict[str, Callable[[str], str]] = {
     "direct": direct_prompt,
     "chain_of_thought": chain_of_thought_prompt,
     "cot": chain_of_thought_prompt,
-    "normalization": normalization_prompt,
-    "normalize": normalization_prompt,
     "normalization_replace": normalization_replace_prompt,
     "normalize_replace": normalization_replace_prompt,
 }
