@@ -40,10 +40,13 @@ class SyllogismNormalizer:
             example: Dictionary containing at least "id" and "syllogism"
 
         Returns:
-            Dictionary with the same schema as input:
+            Dictionary with all original keys, but with normalized "syllogism":
             {
                 "id": ...,
-                "syllogism": "normalized text"
+                "syllogism": "normalized text",
+                "validity": ...,  # if present in original
+                "plausibility": ...,  # if present in original
+                ... (any other original keys)
             }
         """
         original_syllogism = example["syllogism"]
@@ -53,10 +56,11 @@ class SyllogismNormalizer:
         # LLM returns plain text (normalized syllogism)
         normalized_syllogism = self.llm_client.generate_text(prompt)
 
-        return {
-            "id": example.get("id"),
-            "syllogism": normalized_syllogism.strip(),
-        }
+        # Copy all original fields and update only the syllogism
+        result = example.copy()
+        result["syllogism"] = normalized_syllogism.strip()
+        
+        return result
 
     def normalize_batch_as_dicts(
         self,
@@ -71,7 +75,7 @@ class SyllogismNormalizer:
             show_progress: Whether to show a progress bar
 
         Returns:
-            List of normalized syllogism dictionaries
+            List of normalized syllogism dictionaries (preserving all original keys)
         """
         results = []
         iterator = tqdm(test_examples) if show_progress else test_examples
