@@ -1,0 +1,2 @@
+timestamp,model,prompt_template,input_file,output_file,reference_file,num_examples,accuracy,content_effect,combined_score,correct_predictions,total_predictions,acc_plausible_valid,acc_implausible_valid,acc_plausible_invalid,acc_implausible_invalid,content_effect_intra_validity,content_effect_inter_validity
+2026-01-09T20:10:58.567992,google/gemini-3-flash-preview,reason,train_data/subtask 1/train_data.json,predictions/google_gemini3_reason.json,train_data/subtask 1/train_data.json,960,79.6875,10.7746,22.9916,765,960,81.67,92.92,71.37,72.76,6.3234,15.2258

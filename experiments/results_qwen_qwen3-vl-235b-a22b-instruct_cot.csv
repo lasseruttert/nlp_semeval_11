@@ -1,0 +1,2 @@
+timestamp,model,prompt_template,input_file,output_file,reference_file,num_examples,accuracy,content_effect,combined_score,correct_predictions,total_predictions,acc_plausible_valid,acc_implausible_valid,acc_plausible_invalid,acc_implausible_invalid,content_effect_intra_validity,content_effect_inter_validity
+2026-01-09T17:05:07.233277,qwen/qwen3-vl-235b-a22b-instruct,cot,train_data/subtask 1/train_data.json,predictions/qwen_instruct_cot.json,train_data/subtask 1/train_data.json,960,78.5417,23.3892,18.7265,754,960,80.0,48.75,89.74,95.53,18.5174,28.261

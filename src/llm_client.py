@@ -122,7 +122,7 @@ class OpenRouterClient:
         prompt: str,
         response_model: Type[T],
         temperature: float = 0.0,
-        max_tokens: int = 1000,
+        max_tokens: int = 5000,
     ) -> T:
         """
         Generate a structured response from the LLM.
@@ -136,13 +136,10 @@ class OpenRouterClient:
         Returns:
             Instance of response_model with the LLM's response
         """
-        # Create the schema for structured output
-        schema = response_model.model_json_schema()
-
-        # Add instruction to return JSON
+        # Simple system message for logical reasoning
         system_message = (
             "You are a logical reasoning expert. "
-            f"You must respond with valid JSON matching this schema: {json.dumps(schema)}"
+            "Respond with ONLY the word 'true' or 'false', nothing else."
         )
 
         try:
@@ -173,32 +170,54 @@ class OpenRouterClient:
                     f"- Prompt too long for model context window"
                 )
 
-            # Clean markdown formatting (```json ... ```) if present
-            cleaned_content = clean_json_response(content)
+            # Extract true/false from the response
+            # Look for true or false (case insensitive) in the response
+            content_lower = content.strip().lower()
 
-            # Parse JSON and validate with Pydantic
-            response_data = json.loads(cleaned_content)
-            return response_model(**response_data)
+            # Try exact match first
+            if content_lower == 'true':
+                validity_value = True
+            elif content_lower == 'false':
+                validity_value = False
+            else:
+                # Search for true/false anywhere in the response
+                import re
+                # Look for standalone true/false (word boundaries)
+                true_match = re.search(r'\btrue\b', content_lower)
+                false_match = re.search(r'\bfalse\b', content_lower)
 
-        except json.JSONDecodeError as e:
-            # Try to salvage the validity field even if JSON is malformed
-            # Look for "validity": true/false pattern
-            import re
-            validity_match = re.search(r'"validity"\s*:\s*(true|false)', cleaned_content, re.IGNORECASE)
-            if validity_match:
-                validity_value = validity_match.group(1).lower() == 'true'
-                # Return a valid response with just validity
-                return response_model(
-                    validity=validity_value
-                )
+                if true_match and not false_match:
+                    validity_value = True
+                elif false_match and not true_match:
+                    validity_value = False
+                elif true_match and false_match:
+                    # Both found - use the first one
+                    validity_value = true_match.start() < false_match.start()
+                else:
+                    # No true/false found, try to parse as JSON as fallback
+                    try:
+                        cleaned_content = clean_json_response(content)
+                        response_data = json.loads(cleaned_content)
 
-            # If we can't salvage it, show detailed error
-            error_msg = f"Failed to parse LLM response as JSON: {e}\n"
-            error_msg += f"Error at line {e.lineno}, column {e.colno}\n"
-            error_msg += f"\n--- Original Response ---\n{content}\n"
-            if 'cleaned_content' in locals():
-                error_msg += f"\n--- Cleaned Response ---\n{cleaned_content}\n"
-            raise ValueError(error_msg)
+                        # Try to find validity field
+                        def find_validity(obj):
+                            if isinstance(obj, dict):
+                                if 'validity' in obj:
+                                    return obj['validity']
+                                for value in obj.values():
+                                    result = find_validity(value)
+                                    if result is not None:
+                                        return result
+                            return None
+
+                        validity_value = find_validity(response_data)
+                        if validity_value is None:
+                            raise ValueError(f"Could not find true/false or validity field in response: {content}")
+                    except:
+                        raise ValueError(f"Could not extract true/false from response: {content}")
+
+            return response_model(validity=validity_value)
+
         except Exception as e:
             raise RuntimeError(f"Error calling OpenRouter API: {e}")
 

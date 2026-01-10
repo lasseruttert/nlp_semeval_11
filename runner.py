@@ -16,48 +16,144 @@ from typing import List, Tuple, Union
 # ]
 # ------------------------------------------------------------
 TASKS: List[Union[str, List[str]]] = [
-    # 1. Qwen Instruct - Direct Prompt ($0.08)
+    # # 1. Qwen Instruct - Direct Prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "direct",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/qwen_instruct_direct.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json"
+    # ],
+
+    # # 2. Qwen Instruct - Chain of Thought Prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "cot",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/qwen_instruct_cot.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json"
+    # ],
+
+    # # 3. Qwen Instruct - Counterexample Prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "counterexample",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/qwen_instruct_counterexample.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json"
+    # ],
+
+    # # 4. Qwen Instruct - Venn Diagram Prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "venn",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/qwen_instruct_venn.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json"
+    # ],
+
+    # # 5. Qwen Instruct - Syllogistic Rules Prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "rules",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/qwen_instruct_rules.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json"
+    # ],
+
+    # # 6. Qwen Instruct - Minimal Prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "minimal",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/qwen_instruct_minimal.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json"
+    # ],
+
+    # # 7. Qwen Instruct - Symbolic Logic Prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "symbolic",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/qwen_instruct_symbolic.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json"
+    # ],
+
+    # # 8. Qwen Instruct - Comprehensive Prompt (with examples, rules, strategies)
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "comprehensive",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/qwen_instruct_comprehensive.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json"
+    # ],
+
+    # # 9. Qwen Instruct - Fallacy Focus Prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "fallacy",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/qwen_instruct_fallacy.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json"
+    # ],
+    
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "google/gemini-3-flash-preview",
+    #     "--prompt", "direct",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/google_gemini3_direct.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json",
+    # ],
+    
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "google/gemini-3-flash-preview",
+    #     "--prompt", "reason",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/google_gemini3_reason.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json",
+    # ],
+    
     [
         "experiments/run_experiment.py",
-        "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+        "--model", "anthropic/claude-opus-4.5",
         "--prompt", "direct",
         "--input", "train_data/subtask 1/train_data.json",
-        "--output", "predictions/qwen_instruct_direct.json",
+        "--output", "predictions/anthropic_claude_opus_direct.json",
         "--evaluate",
-        "--reference", "train_data/subtask 1/train_data.json"
+        "--reference", "train_data/subtask 1/train_data.json",
     ],
-
-    # 2. Qwen Instruct - Chain of Thought Prompt ($0.12)
+    
     [
         "experiments/run_experiment.py",
-        "--model", "qwen/qwen3-vl-235b-a22b-instruct",
-        "--prompt", "cot",
+        "--model", "anthropic/claude-opus-4.5",
+        "--prompt", "reason",
         "--input", "train_data/subtask 1/train_data.json",
-        "--output", "predictions/qwen_instruct_cot.json",
+        "--output", "predictions/anthropic_claude_opus_reason.json",
         "--evaluate",
-        "--reference", "train_data/subtask 1/train_data.json"
-    ],
-
-    # 3. Qwen Thinking - Direct Prompt ($1.20) ⭐ RECOMMENDED
-    [
-        "experiments/run_experiment.py",
-        "--model", "qwen/qwen3-vl-235b-a22b-thinking",
-        "--prompt", "direct",
-        "--input", "train_data/subtask 1/train_data.json",
-        "--output", "predictions/qwen_thinking_direct.json",
-        "--evaluate",
-        "--reference", "train_data/subtask 1/train_data.json"
-    ],
-
-    # 4. Qwen Thinking - Chain of Thought Prompt ($3.60) ⚠️ EXPENSIVE
-    [
-        "experiments/run_experiment.py",
-        "--model", "qwen/qwen3-vl-235b-a22b-thinking",
-        "--prompt", "cot",
-        "--input", "train_data/subtask 1/train_data.json",
-        "--output", "predictions/qwen_thinking_cot.json",
-        "--evaluate",
-        "--reference", "train_data/subtask 1/train_data.json"
+        "--reference", "train_data/subtask 1/train_data.json",
+        "--limit", "300"
     ],
 ]
 
