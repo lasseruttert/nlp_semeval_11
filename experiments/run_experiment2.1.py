@@ -15,6 +15,9 @@ The JSON schema is IDENTICAL to the input:
 Usage:
     poetry run python experiments/run_experiment2.1.py --model "qwen/qwen3-vl-235b-a22b-instruct" --input "train_data/subtask 1/train_data.json" --output "data/polished/polished_syllogisms_variables.json"
 
+    model alternative 1: google/gemini-3-flash-preview
+    model alternative 2: anthropic/claude-opus-4.5
+
 Optional:
     --limit 100
 """
