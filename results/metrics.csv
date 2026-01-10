@@ -1,0 +1,4 @@
+timestamp,accuracy,content_effect,combined_score,correct_predictions,total_predictions,acc_plausible_valid,acc_implausible_valid,acc_plausible_invalid,acc_implausible_invalid,content_effect_intra_validity,content_effect_inter_validity
+2026-01-10T15:44:08.367956,78.6316,18.0234,19.9286,747,957,61.67,61.34,97.39,94.63,1.5427,34.5041
+2026-01-10T15:44:24.150355,79.2994,17.6375,20.2028,747,960,62.13,62.82,97.4,94.63,1.7337,33.5413
+2026-01-10T15:44:32.904145,78.2427,17.6434,19.9319,748,959,61.25,61.67,96.54,93.88,1.538,33.7488
