@@ -37,6 +37,7 @@ import json
 import csv
 from pathlib import Path
 from datetime import datetime
+from collections import defaultdict
 
 # ---------------------------------------------------------
 # Add src + evaluation kit to path
@@ -118,40 +119,64 @@ def main():
     gt_map = {ex["id"]: ex for ex in gt_data}
 
     # ---------------------------------------------------------
+    # Per-syllogism stats (correctness + normalized validity)
+    # ---------------------------------------------------------
+    syllogism_stats = defaultdict(lambda: {
+        "count": 0,
+        "correct": 0,
+        "incorrect": 0,
+        "normalized_validity": None,
+    })
+
+    # ---------------------------------------------------------
     # Run symbolic evaluation
     # ---------------------------------------------------------
     results = []
-    correct = 0
+    correct_total = 0
     total = 0
 
     for ex in polished:
         sid = ex["id"]
-        parts = [p.strip() for p in ex["syllogism"].split(".") if p.strip()]
+        syll = ex["syllogism"].strip()
+
+        parts = [p.strip() for p in syll.split(".") if p.strip()]
         if len(parts) != 3:
             continue
 
         major, minor, conclusion = [p + "." for p in parts]
 
+        # logical validity of normalized syllogism
         try:
-            pred_valid = SyllogismLogic.is_valid(major, minor, conclusion)
+            norm_valid = SyllogismLogic.is_valid(major, minor, conclusion)
         except Exception:
-            pred_valid = None
+            norm_valid = None
+
+        # store once per syllogism
+        entry = syllogism_stats[syll]
+        if entry["normalized_validity"] is None:
+            entry["normalized_validity"] = norm_valid
 
         true_valid = gt_map[sid]["validity"]
-        match = pred_valid == true_valid
+        match = norm_valid == true_valid
 
         total += 1
         if match:
-            correct += 1
+            correct_total += 1
+
+        entry["count"] += 1
+        if match:
+            entry["correct"] += 1
+        else:
+            entry["incorrect"] += 1
 
         results.append(
             {
                 "id": sid,
-                "validity": pred_valid,   # IMPORTANT: SemEval expects this key
+                "validity": norm_valid,
             }
         )
 
-    accuracy = correct / total if total else 0.0
+    accuracy = correct_total / total if total else 0.0
 
     # ---------------------------------------------------------
     # Save prediction JSON
@@ -161,7 +186,31 @@ def main():
         json.dump({"accuracy": accuracy, "results": results}, f, indent=2)
 
     # ---------------------------------------------------------
-    # Official SemEval evaluation
+    # Save syllogism-level diagnostics
+    # ---------------------------------------------------------
+    stats_out = Path(args.output).with_name("syllogism_prediction_stats.json")
+
+    serializable_stats = {
+        syll: {
+            "count": d["count"],
+            "correct": d["correct"],
+            "incorrect": d["incorrect"],
+            "accuracy": round(d["correct"] / d["count"], 4),
+            "normalized_validity": d["normalized_validity"],
+        }
+        for syll, d in sorted(
+            syllogism_stats.items(),
+            key=lambda x: (-x[1]["count"], x[0])
+        )
+    }
+
+    with stats_out.open("w", encoding="utf-8") as f:
+        json.dump(serializable_stats, f, indent=2)
+
+    print(f"Syllogism prediction statistics written to {stats_out}")
+
+    # ---------------------------------------------------------
+    # Official SemEval evaluation (unchanged)
     # ---------------------------------------------------------
     overall_acc, _, _ = calculate_accuracy(
         ground_truth_list=gt_data,
@@ -191,7 +240,7 @@ def main():
         "accuracy": round(overall_acc, 4),
         "content_effect": round(content_effect, 4),
         "combined_score": round(combined, 4),
-        "correct_predictions": correct,
+        "correct_predictions": correct_total,
         "total_predictions": total,
         "subgroup_accuracies": {
             "plausible_valid": round(acc_pv, 2),
@@ -205,12 +254,8 @@ def main():
         },
     }
 
-    # ---------------------------------------------------------
-    # CSV logging
-    # ---------------------------------------------------------
     if args.metrics_csv:
         append_metrics_to_csv(eval_results, args.metrics_csv)
-        print(f"Metrics appended to CSV: {args.metrics_csv}")
 
     print("\n✅ Evaluation completed successfully\n")
 
