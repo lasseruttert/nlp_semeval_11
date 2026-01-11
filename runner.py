@@ -115,15 +115,15 @@ TASKS: List[Union[str, List[str]]] = [
     #     "--reference", "train_data/subtask 1/train_data.json"
     # ],
     
-    # [
-    #     "experiments/run_experiment.py",
-    #     "--model", "google/gemini-3-flash-preview",
-    #     "--prompt", "direct",
-    #     "--input", "train_data/subtask 1/train_data.json",
-    #     "--output", "predictions/google_gemini3_direct.json",
-    #     "--evaluate",
-    #     "--reference", "train_data/subtask 1/train_data.json",
-    # ],
+    [
+        "experiments/run_experiment.py",
+        "--model", "google/gemini-3-flash-preview",
+        "--prompt", "direct",
+        "--input", "train_data/subtask 1/polished_syllogisms_variables_opus.json",
+        "--output", "predictions/google_gemini3_direct.json",
+        "--evaluate",
+        "--reference", "train_data/subtask 1/train_data.json",
+    ],
     
     # [
     #     "experiments/run_experiment.py",
@@ -135,26 +135,26 @@ TASKS: List[Union[str, List[str]]] = [
     #     "--reference", "train_data/subtask 1/train_data.json",
     # ],
     
-    [
-        "experiments/run_experiment.py",
-        "--model", "anthropic/claude-opus-4.5",
-        "--prompt", "direct",
-        "--input", "train_data/subtask 1/train_data.json",
-        "--output", "predictions/anthropic_claude_opus_direct.json",
-        "--evaluate",
-        "--reference", "train_data/subtask 1/train_data.json",
-    ],
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "anthropic/claude-opus-4.5",
+    #     "--prompt", "direct",
+    #     "--input", "train_data/subtask 1/polished_syllogisms_variables_opus.json",
+    #     "--output", "predictions/anthropic_claude_opus_direct.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json",
+    # ],
     
-    [
-        "experiments/run_experiment.py",
-        "--model", "anthropic/claude-opus-4.5",
-        "--prompt", "reason",
-        "--input", "train_data/subtask 1/train_data.json",
-        "--output", "predictions/anthropic_claude_opus_reason.json",
-        "--evaluate",
-        "--reference", "train_data/subtask 1/train_data.json",
-        "--limit", "300"
-    ],
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "anthropic/claude-opus-4.5",
+    #     "--prompt", "reason",
+    #     "--input", "train_data/subtask 1/train_data.json",
+    #     "--output", "predictions/anthropic_claude_opus_reason.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json",
+    #     "--limit", "300"
+    # ],
 ]
 
 
