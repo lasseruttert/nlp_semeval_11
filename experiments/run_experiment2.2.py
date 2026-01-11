@@ -37,7 +37,6 @@ import json
 import csv
 from pathlib import Path
 from datetime import datetime
-from collections import defaultdict
 
 # ---------------------------------------------------------
 # Add src + evaluation kit to path
@@ -119,98 +118,87 @@ def main():
     gt_map = {ex["id"]: ex for ex in gt_data}
 
     # ---------------------------------------------------------
-    # Per-syllogism stats (correctness + normalized validity)
-    # ---------------------------------------------------------
-    syllogism_stats = defaultdict(lambda: {
-        "count": 0,
-        "correct": 0,
-        "incorrect": 0,
-        "normalized_validity": None,
-    })
-
-    # ---------------------------------------------------------
     # Run symbolic evaluation
     # ---------------------------------------------------------
     results = []
-    correct_total = 0
+    wrong_predictions = []
+
+    correct = 0
     total = 0
 
     for ex in polished:
         sid = ex["id"]
-        syll = ex["syllogism"].strip()
+        normalized_syll = ex["syllogism"].strip()
 
-        parts = [p.strip() for p in syll.split(".") if p.strip()]
+        parts = [p.strip() for p in normalized_syll.split(".") if p.strip()]
         if len(parts) != 3:
             continue
 
         major, minor, conclusion = [p + "." for p in parts]
 
-        # logical validity of normalized syllogism
         try:
-            norm_valid = SyllogismLogic.is_valid(major, minor, conclusion)
+            pred_valid = SyllogismLogic.is_valid(major, minor, conclusion)
         except Exception:
-            norm_valid = None
-
-        # store once per syllogism
-        entry = syllogism_stats[syll]
-        if entry["normalized_validity"] is None:
-            entry["normalized_validity"] = norm_valid
+            pred_valid = None
 
         true_valid = gt_map[sid]["validity"]
-        match = norm_valid == true_valid
+        match = pred_valid == true_valid
 
         total += 1
         if match:
-            correct_total += 1
-
-        entry["count"] += 1
-        if match:
-            entry["correct"] += 1
+            correct += 1
         else:
-            entry["incorrect"] += 1
+            wrong_predictions.append(
+                {
+                    "id": sid,
+                    "original_syllogism": gt_map[sid].get("syllogism"),
+                    "normalized_syllogism": normalized_syll,
+                    "true_valid": true_valid,
+                    "pred_valid": pred_valid,
+                }
+            )
 
         results.append(
             {
                 "id": sid,
-                "validity": norm_valid,
+                "validity": pred_valid,
             }
         )
 
-    accuracy = correct_total / total if total else 0.0
+    accuracy = correct / total if total else 0.0
+    wrong_count = total - correct
 
     # ---------------------------------------------------------
-    # Save prediction JSON
+    # Save prediction JSON (UNCHANGED)
     # ---------------------------------------------------------
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "w", encoding="utf-8") as f:
         json.dump({"accuracy": accuracy, "results": results}, f, indent=2)
 
     # ---------------------------------------------------------
-    # Save syllogism-level diagnostics
+    # Save WRONG predictions JSON (WITH SUMMARY AT TOP)
     # ---------------------------------------------------------
-    stats_out = Path(args.output).with_name("syllogism_prediction_stats.json")
+    wrong_out = Path(args.output).with_name("wrong_predictions.json")
 
-    serializable_stats = {
-        syll: {
-            "count": d["count"],
-            "correct": d["correct"],
-            "incorrect": d["incorrect"],
-            "accuracy": round(d["correct"] / d["count"], 4),
-            "normalized_validity": d["normalized_validity"],
-        }
-        for syll, d in sorted(
-            syllogism_stats.items(),
-            key=lambda x: (-x[1]["count"], x[0])
-        )
+    wrong_payload = {
+        "summary": {
+            "total_predictions": total,
+            "wrong_predictions": wrong_count,
+            "accuracy": round(accuracy, 4),
+        },
+        "errors": wrong_predictions,
     }
 
-    with stats_out.open("w", encoding="utf-8") as f:
-        json.dump(serializable_stats, f, indent=2)
+    with wrong_out.open("w", encoding="utf-8") as f:
+        json.dump(wrong_payload, f, indent=2)
 
-    print(f"Syllogism prediction statistics written to {stats_out}")
+    print(
+        f"Wrong predictions written to {wrong_out} "
+        f"({wrong_count} / {total} wrong)"
+    )
 
     # ---------------------------------------------------------
-    # Official SemEval evaluation (unchanged)
+    # Official SemEval evaluation
     # ---------------------------------------------------------
     overall_acc, _, _ = calculate_accuracy(
         ground_truth_list=gt_data,
@@ -240,7 +228,7 @@ def main():
         "accuracy": round(overall_acc, 4),
         "content_effect": round(content_effect, 4),
         "combined_score": round(combined, 4),
-        "correct_predictions": correct_total,
+        "correct_predictions": correct,
         "total_predictions": total,
         "subgroup_accuracies": {
             "plausible_valid": round(acc_pv, 2),
