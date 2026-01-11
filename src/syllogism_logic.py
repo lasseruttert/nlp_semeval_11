@@ -43,28 +43,34 @@ class SyllogismLogic:
     def is_valid(major: str, minor: str, conclusion: str) -> bool:
         """
         Checks formal validity by enumerating all possible assignments
-        of sets to {A,B,C} over universe {0,1,2}.
+        of sets to {A,B,C} over universe {0,1,2},
+        ASSUMING existential import for all terms.
         """
         p1 = SyllogismLogic.parse(major)
         p2 = SyllogismLogic.parse(minor)
         c  = SyllogismLogic.parse(conclusion)
 
-        # Determine relevant term letters (up to A,B,C)
+        # Determine relevant term letters
         terms = list(set([p1[1], p1[2], p2[1], p2[2], c[1], c[2]]))
+
         U = {0, 1, 2}
         subsets = [set(x) for i in range(len(U)+1) for x in itertools.combinations(U, i)]
 
-        # Enumerate all combinations of A,B,C subsets
         for As in subsets:
             for Bs in subsets:
                 for Cs in subsets:
                     env = {"A": As, "B": Bs, "C": Cs}
 
-                    # If premises hold in this model...
+                    # 🔴 NEW: existential import
+                    if any(len(env[t]) == 0 for t in terms):
+                        continue
+
+                    # If premises hold...
                     if SyllogismLogic.holds(p1[0], env[p1[1]], env[p1[2]]) and \
-                       SyllogismLogic.holds(p2[0], env[p2[1]], env[p2[2]]):
+                    SyllogismLogic.holds(p2[0], env[p2[1]], env[p2[2]]):
+
                         # ...but conclusion fails → invalid
                         if not SyllogismLogic.holds(c[0], env[c[1]], env[c[2]]):
                             return False
-        # No countermodel → valid
+
         return True
