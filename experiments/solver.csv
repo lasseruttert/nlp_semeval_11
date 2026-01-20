@@ -1,0 +1,5 @@
+model,timestamp,accuracy,content_effect,combined_score,correct_predictions,total_predictions,acc_plausible_valid,acc_implausible_valid,acc_plausible_invalid,acc_implausible_invalid,content_effect_intra_validity,content_effect_inter_validity
+opus,2026-01-11T14:08:09.995858,96.1297,3.0527,40.0643,919,960,98.75,99.17,93.51,93.06,0.431,5.6745
+gemini,2026-01-11T14:08:19.538337,96.6316,2.679,41.9655,918,957,98.75,99.16,94.78,93.8,0.6953,4.6627
+qwen, 2026-01-11T14:08:35.041943,96.2845,2.4609,42.955,907,960,98.72,98.72,93.94,93.8,0.0716,4.8502
+
