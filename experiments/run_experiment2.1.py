@@ -1,8 +1,10 @@
 """
-Normalization runner for SemEval 2026 Task 11 – Subtask 1.
+Normalization runner (VARIABLE-REPLACED) for SemEval 2026 Task 11 – Subtask 1.
 
-This script rewrites syllogistic arguments into a normalized textual form
-using an LLM, while keeping the JSON schema IDENTICAL to the input:
+This script rewrites syllogistic arguments into a purely FORMAL normalized form
+using abstract variables (A, B, C, ...) instead of concrete terms.
+
+The JSON schema is IDENTICAL to the input:
 [
   {
     "id": "...",
@@ -11,13 +13,13 @@ using an LLM, while keeping the JSON schema IDENTICAL to the input:
 ]
 
 Usage:
-    poetry run python experiments/run_experiment2.1.py --model "qwen/qwen3-vl-235b-a22b-instruct" --prompt "normalization" --input "train_data/subtask 1/train_data.json" --output "data/polished/polished_syllogisms.json"
+    poetry run python experiments/run_experiment2.1.py --model "qwen/qwen3-vl-235b-a22b-instruct" --input "train_data/subtask 1/train_data.json" --output "data/polished/polished_syllogisms_variables.json"
+
+    model alternative 1: google/gemini-3-flash-preview
+    model alternative 2: anthropic/claude-opus-4.5
 
 Optional:
     --limit 100
-
-Example: 
-    poetry run python experiments/run_experiment2.1.py --model "qwen/qwen3-vl-235b-a22b-instruct" --prompt "normalization" --input "train_data/subtask 1/train_data.json" --output "data/polished/polished_syllogisms.json" --limit 10
 """
 
 import argparse
@@ -31,13 +33,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.llm_client import OpenRouterClient
 from src.data_loader import load_test_data
-from src.prompts import get_prompt_template, PROMPT_TEMPLATES
+from src.prompts import get_prompt_template
 from src.normalizer import SyllogismNormalizer
+
+
+PROMPT_NAME = "normalization_replace"
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Normalize syllogism statements using an LLM"
+        description="Normalize syllogisms into variable-based canonical form using an LLM"
     )
 
     # Model configuration
@@ -46,15 +51,6 @@ def main():
         type=str,
         default="qwen/qwen2.5-vl-235b-a22b-instruct",
         help="OpenRouter model identifier"
-    )
-
-    # Prompt template
-    parser.add_argument(
-        "--prompt",
-        type=str,
-        default="normalization",
-        choices=list(PROMPT_TEMPLATES.keys()),
-        help=f"Prompt template to use. Options: {', '.join(PROMPT_TEMPLATES.keys())}"
     )
 
     # Input / Output
@@ -69,7 +65,7 @@ def main():
         "--output",
         type=str,
         required=True,
-        help="Path to save normalized syllogisms JSON"
+        help="Path to save variable-normalized syllogisms JSON"
     )
 
     # Optional limit
@@ -89,18 +85,18 @@ def main():
 
     args = parser.parse_args()
 
-    # Load environment variables from .env
+    # Load environment variables
     load_dotenv()
 
     print("=" * 60)
-    print("SemEval 2026 Task 11 – Syllogism Normalization")
+    print("SemEval 2026 Task 11 – Syllogism Normalization (VARIABLE FORM)")
     print("=" * 60)
-    print(f"Model:  {args.model}")
-    print(f"Prompt: {args.prompt}")
-    print(f"Input:  {args.input}")
-    print(f"Output: {args.output}")
+    print(f"Model:   {args.model}")
+    print(f"Prompt:  {PROMPT_NAME}")
+    print(f"Input:   {args.input}")
+    print(f"Output:  {args.output}")
     if args.limit:
-        print(f"Limit:  {args.limit}")
+        print(f"Limit:   {args.limit}")
     print("=" * 60 + "\n")
 
     # ---------------------------------------------------------
@@ -119,10 +115,10 @@ def main():
         sys.exit(1)
 
     # ---------------------------------------------------------
-    # Load prompt template
+    # Load prompt template (FIXED)
     # ---------------------------------------------------------
-    print(f"Loading prompt template: {args.prompt}...")
-    prompt_template = get_prompt_template(args.prompt)
+    print(f"Loading prompt template: {PROMPT_NAME}...")
+    prompt_template = get_prompt_template(PROMPT_NAME)
     print("Prompt template loaded.\n")
 
     # ---------------------------------------------------------
@@ -152,7 +148,7 @@ def main():
     # ---------------------------------------------------------
     # Normalize syllogisms
     # ---------------------------------------------------------
-    print("Normalizing syllogisms...")
+    print("Normalizing syllogisms into variable-based form...")
     print("This may take a while depending on the number of examples...\n")
 
     try:
@@ -175,12 +171,12 @@ def main():
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(normalized, f, indent=2, ensure_ascii=False)
 
-        print("Normalized JSON saved successfully.\n")
+        print("Variable-normalized JSON saved successfully.\n")
     except Exception as e:
         print(f"Error saving output JSON: {e}")
         sys.exit(1)
 
-    print("Normalization experiment completed successfully!")
+    print("Normalization experiment (variable form) completed successfully!")
 
 
 if __name__ == "__main__":

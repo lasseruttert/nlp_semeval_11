@@ -510,104 +510,82 @@ KEY REMINDERS:
     return prompt
 
 
-def normalization_prompt(syllogism: str) -> str:
-    """
-    Prompt for rewriting the three sentences of a syllogism
-    into canonical categorical form.
-    """
-
-    prompt = f"""You are a logic expert. Your task is to normalize a syllogistic argument into canonical form.
-
-INPUT STRUCTURE:
-You will receive exactly THREE sentences in this order:
-1. First sentence = MAJOR PREMISE
-2. Second sentence = MINOR PREMISE  
-3. Third sentence = CONCLUSION
-
-CRITICAL TASK:
-Map each sentence to EXACTLY one of these four canonical forms:
-- "All X are Y."
-- "No X are Y."
-- "Some X are Y."
-- "Some X are not Y."
-
-CRUCIAL RULES:
-1. PRESERVE the exact order: major premise, minor premise, conclusion
-2. Do NOT reorder or swap sentences
-3. Do NOT add, remove, or infer information
-4. Do NOT change the logical meaning
-5. ONLY change the wording to match one of the four canonical forms
-6. Keep the same terms - do NOT introduce synonyms
-7. Each sentence MUST end with a period
-
-QUANTIFIER MAPPING EXAMPLES:
-- "All", "every", "any", "each" → "All"
-- "No", "none", "not any" → "No"  
-- "Some", "a few", "many", "most", "there are", "there exist" → "Some"
-- "Some...not", "not all", "not every" → "Some...not"
-
-
-SYLLOGISM TO NORMALIZE:
-{syllogism}
-
-OUTPUT FORMAT:
-Respond with ONLY the three normalized sentences, separated by spaces. No JSON, no markdown, no explanation, no numbering.
-
-Format: [major premise]. [minor premise]. [conclusion]."""
-
-    return prompt
-
 def normalization_replace_prompt(syllogism: str) -> str:
     """
-    Normalizes the syllogism AND replaces all concrete terms
-    with abstract variables A, B, C (canonical form).
+    Normalize 3-sentence syllogism into strict categorical A/E/I/O form
+    and replace concrete terms with variables A,B,C.
+
+    If not possible as a 3-term categorical syllogism, output a fixed
+    canonical syllogism whose validity encodes the model's validity
+    judgment of the original.
     """
 
-    prompt = f"""You are a logic expert. Your task is to normalize a syllogistic argument into PURELY FORMAL canonical form.
+    prompt = f"""/no_think
+You are a logic expert. Output must be STRICTLY formatted.
 
-INPUT STRUCTURE:
-You will receive exactly THREE sentences in this order:
-1. MAJOR PREMISE
-2. MINOR PREMISE
-3. CONCLUSION
+You receive EXACTLY THREE sentences in order:
+1) Major premise
+2) Minor premise
+3) Conclusion
 
-STEP 1 — NORMALIZATION:
-Rewrite each sentence into EXACTLY one of:
-- "All X are Y."
-- "No X are Y."
-- "Some X are Y."
-- "Some X are not Y."
+GOAL:
+Produce EXACTLY three sentences, separated by single spaces, each ending with a period.
+No extra text. No markdown. No JSON. No labels.
 
-STEP 2 — VARIABLE REPLACEMENT:
-Replace ALL concrete terms with abstract variables:
-- Use single capital letters: A, B, C
-- Use the MINIMUM number of variables
-- The SAME original term must map to the SAME variable everywhere
-- Different terms must map to DIFFERENT variables
+ALLOWED SENTENCE TEMPLATES (ONLY these four):
+1. All X are Y.
+2. No X are Y.
+3. Some X are Y.
+4. Some X are not Y.
 
-EXAMPLE:
-Input:
-All cats are mammals. All mammals are animals. Therefore all cats are animals.
+ABSOLUTE FORMAT RULES:
+- Use ONLY: "All", "No", "Some", "are", "not", and term placeholders (A/B/C) plus punctuation.
+- The word "not" may appear ONLY in: "Some X are not Y."
+- NEVER output: "All X are not Y." or "No X are not Y." (rewrite them canonically).
+- NEVER use conjunctions/disjunctions inside a term (no "and", "or", commas, parentheses).
+- Preserve the original sentence order (premise1, premise2, conclusion) IF conversion is possible.
 
-Output:
-All A are B. All B are C. All A are C.
+STEP 1 — CATEGORICAL NORMALIZATION (meaning-preserving):
+Rewrite each input sentence into exactly one of the four allowed templates.
+Do not weaken/strengthen quantifiers:
+- "No X are Y" must NOT become "Some X are not Y"
+- "All X are Y" must NOT become "Some X are Y"
+Fix common non-canonical forms:
+- "All X are not Y"  -> "No X are Y"
+- "No X are not Y"   -> "All X are Y"
 
-RULES:
-- Preserve sentence order
-- Do NOT reorder premises
-- Do NOT add or remove information
-- Do NOT explain anything
-- Each sentence MUST end with a period
+STEP 2 — VARIABLE REPLACEMENT (3-term only):
+Replace ALL concrete class terms with variables using ONLY A, B, C.
+- Same original term => same variable everywhere
+- Different terms => different variables
+- Use EXACTLY 3 variables iff the argument is a standard 3-term categorical syllogism
+- If more than 3 distinct class terms are REQUIRED, conversion is NOT POSSIBLE (see fallback)
 
-SYLLOGISM:
+DETECT “NOT POSSIBLE” (fallback required) if ANY occurs:
+- You would need >3 variables (more than 3 distinct class terms)
+- Any sentence requires a compound term (e.g., "B and C", "not B" as a term)
+- Any sentence is relational/non-categorical (e.g., "loves", "equals", "taller than", "if...then", "most", "exactly one", etc.)
+- You cannot express it without adding/removing information
+
+FALLBACK (CRITICAL):
+If conversion is NOT POSSIBLE, DO THIS INSTEAD:
+1) Decide whether the ORIGINAL 3-sentence argument is logically VALID (premises entail conclusion).
+2) Output EXACTLY one of these fixed canonical syllogisms:
+- If VALID output:   "All A are B. All B are C. All A are C."
+- If INVALID output: "All A are B. All C are B. All A are C."
+
+TINY EXAMPLE (follow EXACTLY):
+Input: All cats are mammals. No mammals are reptiles. Therefore no cats are reptiles.
+Output: All A are B. No B are C. No A are C.
+
+NOW PROCESS THIS SYLLOGISM (three sentences):
 {syllogism}
 
-OUTPUT FORMAT:
-Exactly three sentences, separated by spaces.
-No JSON. No markdown. No explanations.
+OUTPUT:
+Exactly three sentences separated by spaces, each ending with a period.
 """
-
     return prompt
+
 
 
 # Dictionary of available prompt templates

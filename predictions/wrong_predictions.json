@@ -1,0 +1,380 @@
+{
+  "summary": {
+    "total_predictions": 960,
+    "wrong_predictions": 53,
+    "accuracy": 0.9448
+  },
+  "errors": [
+    {
+      "id": "9bf9af39-9b60-43da-a871-23190a6d5e52",
+      "original_syllogism": "Not a single creature that is a retriever is a dog. Every single animal is a retriever. It must be the case that no animal is a dog.",
+      "normalized_syllogism": "No A are B. All C are A. No C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "7258b953-a6a7-46f3-8c1b-04322353da9f",
+      "original_syllogism": "The set of humans is a subset of the set of mortals. At least one robot is not a mortal. There is at least one robot who is not a human.",
+      "normalized_syllogism": "All A are B. Some C are not B. Some C are not A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "c57395fe-25dd-4f44-acfa-71ecd87ed2b4",
+      "original_syllogism": "It is true that anything that is an apple is an edible thing. Every apple is a fruit. It follows that some fruits are edible things.",
+      "normalized_syllogism": "All A are B. All A are C. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "8abb5cfd-db81-4fe4-8c3c-f25e8f2bdb74",
+      "original_syllogism": "Every single apple is a vegetable. Anything that is an apple is a fruit. From this, it can be stated that some fruits are vegetables.",
+      "normalized_syllogism": "All A are B. All A are C. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "892da397-cedc-4341-b9d1-d59eb6ed7865",
+      "original_syllogism": "There are no amphibians that do not live on both land and in water. Every single frog is an amphibian. There exists at least one frog that lives on land and in water.",
+      "normalized_syllogism": "No A are not B. All C are A. Some C are B.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "38d07379-8307-4a7f-a73d-731ed989dc84",
+      "original_syllogism": "The group of birds is a subset of the group of creatures with feathers. At least one insect is not a creature with feathers. Not every insect is a bird.",
+      "normalized_syllogism": "All A are B. Some C are not B. Some C are not A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "be226ccb-e7b4-4f8c-b7d0-ef9640c705cb",
+      "original_syllogism": "Anything which is an animal is a flightless thing. Every single bird is an animal. There are no birds that are not flightless.",
+      "normalized_syllogism": "All A are B. All C are A. All C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "4510d170-3c4e-455b-a819-2c2e88fe1655",
+      "original_syllogism": "Every single reptile is a living thing. The set of animals contains no living things. Not a single reptile is an animal.",
+      "normalized_syllogism": "All A are B. No C are B. No A are C.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "f37a0e86-98bb-459b-8d6d-60b3455de955",
+      "original_syllogism": "Any and all humans are mortal. It is a known fact that all humans are primates. Thus, every single primate is mortal.",
+      "normalized_syllogism": "All A are B. All A are C. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "1b1b97d3-969d-4921-9095-42863228cbab",
+      "original_syllogism": "Anything that is a mammal is a creature that is warm-blooded. Some animals are, without a doubt, mammals. Therefore, every single animal is made of wood.",
+      "normalized_syllogism": "All A are B. Some C are A. All C are D.",
+      "true_valid": false,
+      "pred_valid": null
+    },
+    {
+      "id": "a387bf65-5020-4833-bfed-c12eb551e259",
+      "original_syllogism": "Every single country has a capital city. The entity known as France is a country. There is at least some part of France that has a capital city.",
+      "normalized_syllogism": "All A are B. C is A. Some C are B.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "f0e91b6c-be2c-4558-b627-2ecb7b09e00a",
+      "original_syllogism": "It is not the case that animals are non-birds. Of the items that are hummingbirds, some are non-birds. It must be the case that every single hummingbird is not an animal.",
+      "normalized_syllogism": "All A are B. Some C are not B. All C are not A.",
+      "true_valid": false,
+      "pred_valid": null
+    },
+    {
+      "id": "ef38a966-b81e-4116-82ab-97eb995ca2fe",
+      "original_syllogism": "It is true that every dog is a mammal. Anything that is a dog is an animal. From this, it can be claimed that some animals are mammals.",
+      "normalized_syllogism": "All A are B. All A are C. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "18ca9b49-d0cf-44f4-83bf-eb4739bc9317",
+      "original_syllogism": "Nothing that is a square is a circle. There are some shapes that are circles. It must be the case that every single shape is not a square.",
+      "normalized_syllogism": "No A are B. Some C are B. All C are not A.",
+      "true_valid": false,
+      "pred_valid": null
+    },
+    {
+      "id": "66621d65-5d64-4e5e-90a2-fd1eea48d437",
+      "original_syllogism": "There are no vegetables that are not poisonous. Anything that is a carrot is a vegetable. It follows that a number of carrots are poisonous.",
+      "normalized_syllogism": "No A are not B. All C are A. Some C are B.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "a907b7ac-65e7-4dbf-83db-21957c0c2a8f",
+      "original_syllogism": "Every sport requires physical activity. There is no such thing as soccer that isn't a sport. At least some soccer is a thing that requires physical activity.",
+      "normalized_syllogism": "All A are B. No C are not A. Some C are B.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "732e20b3-c504-4115-914d-496d0c4ee6da",
+      "original_syllogism": "Every single mammal is a living thing. The set of animals contains no living things. Not a single mammal is an animal.",
+      "normalized_syllogism": "All A are B. No C are B. No A are C.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "c38a9bc0-efdd-49af-af59-17a6567d8817",
+      "original_syllogism": "Every item that is a mammal is an animal. Some lions are mammals. Therefore, all lions can be said to be animals.",
+      "normalized_syllogism": "All A are B. Some C are A. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "2b535ac3-2104-4754-b57a-dd89319e6a16",
+      "original_syllogism": "There are no cars that can be called boats. It is also true that every car is a type of vehicle. This has led to the conclusion that a portion of vehicles are cars.",
+      "normalized_syllogism": "No A are B. All A are C. Some C are A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "91e3ba86-4129-4142-8e1d-89a43c8a7246",
+      "original_syllogism": "There are no birds that can be called fish. It is also true that every bird is a type of animal. This has led to the conclusion that a portion of animals are birds.",
+      "normalized_syllogism": "No A are B. All A are C. Some C are A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "db2abe54-05ba-4564-bb8b-6ccace6583d3",
+      "original_syllogism": "Every item that is a fish is a plant. Some cars are fish. Therefore, all cars can be said to be plants.",
+      "normalized_syllogism": "All A are B. Some C are A. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "98fda6b1-7e7b-48ea-9307-e27dfba67bb2",
+      "original_syllogism": "Every dog is an animal. There are no felines that are canines. It is the case that no cat is a dog.",
+      "normalized_syllogism": "All A are B. No C are A. No C are A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "0b639393-0cbf-4162-90a6-80cd8a7dc982",
+      "original_syllogism": "Anything which is a mammal is cold-blooded. All things that are whales are mammals. There exists at least one whale that is cold-blooded.",
+      "normalized_syllogism": "No A are B. All C are A. Some C are B.",
+      "true_valid": true,
+      "pred_valid": false
+    },
+    {
+      "id": "6fd2b434-4215-415b-9e9b-5cf25fdc219f",
+      "original_syllogism": "Anything that is an insect has six legs. Every single spider is an insect. There are no spiders that do not have six legs.",
+      "normalized_syllogism": "All A are B. All C are A. All C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "31e903dc-43a9-4fb6-8841-5a724bdf53ca",
+      "original_syllogism": "Every single animal is a living thing. Anything that is a bird is an animal. All birds are living things.",
+      "normalized_syllogism": "All A are B. All C are A. All C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "425e7e61-535a-4719-bf90-fc33991b40ba",
+      "original_syllogism": "Anything that is a dog is a mammal. There are no sharks which are also dogs. It is the case that some sharks are not mammals.",
+      "normalized_syllogism": "All A are B. No C are A. Some C are not B.",
+      "true_valid": true,
+      "pred_valid": false
+    },
+    {
+      "id": "3f9d3a77-23b4-4ea3-8246-5d39dc5f6d49",
+      "original_syllogism": "Everything that is a carrot is also a vegetable. Some dogs are carrots. Therefore, all dogs can be said to be vegetables.",
+      "normalized_syllogism": "All A are B. Some C are A. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "550d9d17-634f-43b0-a389-f8faaead4a7a",
+      "original_syllogism": "It is the case that there are no fish that are also mammals. Anything that is a whale is not a fish. It follows that some whales are mammals.",
+      "normalized_syllogism": "No A are B. All C are not A. Some C are B.",
+      "true_valid": false,
+      "pred_valid": null
+    },
+    {
+      "id": "d20244c4-f1d9-483d-9504-66e3a29118cc",
+      "original_syllogism": "There are no trees that cannot teleport. Every single thing that can teleport has gills. It is a logical consequence that some things with gills are trees.",
+      "normalized_syllogism": "No A are not B. All B are C. Some C are A.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "941ec598-d637-4f22-b558-367267161a64",
+      "original_syllogism": "Every single planet is a thing made of cheese. The Earth is a planet. A certain part of Earth is made of cheese.",
+      "normalized_syllogism": "All A are B. C is A. Some C are B.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "a1bcb9af-88de-40c2-aaf3-55ee03a1ba1b",
+      "original_syllogism": "There are no animals that are also plants. At least one tree is a plant. At least one tree is not an animal.",
+      "normalized_syllogism": "No A are B. Some C are B. Some C are not A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "7e1a1cc2-c813-4e34-9278-b6ed795138ac",
+      "original_syllogism": "Anything that is a spider is a mammal. All spiders are insects. This means that a few insects are mammals.",
+      "normalized_syllogism": "All A are B. All A are C. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "2ab78772-0f7f-4554-ab3a-8bd5d40b66e7",
+      "original_syllogism": "Every object that orbits a star is a planet. Anything that is a gas giant is an object that is a planet. Therefore, there are no gas giants that do not orbit a star.",
+      "normalized_syllogism": "All A are B. All C are B. All C are A.",
+      "true_valid": true,
+      "pred_valid": false
+    },
+    {
+      "id": "beb1df32-1d8c-40eb-a481-d08752c30625",
+      "original_syllogism": "The set of living beings is a subset of the set of animals with gills. At least one fish is not an animal with gills. Not every fish is a living being.",
+      "normalized_syllogism": "All A are B. Some C are not B. Some C are not A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "8e73a345-d7c3-4d9f-bd1b-c0b852a03dcf",
+      "original_syllogism": "Not a single person who is a poodle is a dog. Every single animal is a poodle. The conclusion that no animal is a dog is inescapable.",
+      "normalized_syllogism": "No A are B. All C are A. No C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "35ecf751-bb19-4329-ad37-1087d9fe2a0a",
+      "original_syllogism": "Every car is a motorized vehicle. At least one bicycle is not a motorized vehicle. Not all bicycles can be considered cars.",
+      "normalized_syllogism": "All A are B. Some C are not B. Some C are not A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "6a8f60ed-ac31-45e0-8c05-4915d090f21d",
+      "original_syllogism": "There are no fiction books that are not non-fiction. Anything that is a novel is a fiction book. Therefore, some novels are non-fiction.",
+      "normalized_syllogism": "No A are not B. All C are A. Some C are B.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "4174bbf2-1f54-4ae3-a5e9-cefac102ed46",
+      "original_syllogism": "There are no animals that do not live on land. It is the case that no fish is an animal. At least some fish live on land.",
+      "normalized_syllogism": "No A are not B. No C are A. Some C are B.",
+      "true_valid": false,
+      "pred_valid": null
+    },
+    {
+      "id": "dbf38723-5390-4452-b85b-19499e555bba",
+      "original_syllogism": "It is true that everything that is an animal is a mammal. It is also true that no reptiles are animals. Thus, it is concluded that no reptiles are animals.",
+      "normalized_syllogism": "All A are B. No C are A. No C are A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "fe103879-a542-4b78-b39f-5b3c3969a5a8",
+      "original_syllogism": "A square cannot be a shape. There exist shapes that are squares and are also rectangles. It necessarily follows that a subset of rectangles are not shapes.",
+      "normalized_syllogism": "No A are B. Some B are C. Some C are not B.",
+      "true_valid": true,
+      "pred_valid": false
+    },
+    {
+      "id": "45d94787-3541-406f-af22-4fd535dee8a8",
+      "original_syllogism": "Every vehicle has wheels. At least one car does not have wheels. Not all cars are vehicles.",
+      "normalized_syllogism": "All A are B. Some C are not B. Some C are not A.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "745662c5-c85b-4940-83fe-cea6bd5be051",
+      "original_syllogism": "Anything that is a human is a primate. Every single whale is a mammal. Not a single whale is a human.",
+      "normalized_syllogism": "All A are B. All C are D. No C are A.",
+      "true_valid": false,
+      "pred_valid": null
+    },
+    {
+      "id": "c3ed1a57-88e6-4451-8592-de1be8c8066d",
+      "original_syllogism": "There are no birds that do not have wings. It is the case that no insect is a bird. It follows that some insects have wings.",
+      "normalized_syllogism": "No A are not B. No C are A. Some C are B.",
+      "true_valid": false,
+      "pred_valid": null
+    },
+    {
+      "id": "f261b7cf-efcb-403d-ac2c-c5cebddab402",
+      "original_syllogism": "There is no physicist who is not a person. It is true that all physicists are scientists. It follows that some scientists are people.",
+      "normalized_syllogism": "All A are B. All A are C. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "094f320d-ea3a-4e4e-be55-d09692332089",
+      "original_syllogism": "It is a fact that every tulip is a flower. It is also true that all roses are flowers. Therefore, it is concluded that a few flowers are roses.",
+      "normalized_syllogism": "All A are B. All C are B. Some B are C.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "cc362ec8-4aca-4868-acb7-c4b193c9dd20",
+      "original_syllogism": "There are no chairs that are not furniture. All furniture are items found in a household. It follows that some items found in a household are chairs.",
+      "normalized_syllogism": "No A are not B. All B are C. Some C are A.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "fd7d1283-6217-4458-8f48-40968017069c",
+      "original_syllogism": "Every single vehicle is an animal. No cars are animals. A portion of modes of transportation are not vehicles.",
+      "normalized_syllogism": "No A are B. Some C are not A. All C are B.",
+      "true_valid": true,
+      "pred_valid": false
+    },
+    {
+      "id": "a3192ff9-b4bd-45f0-a28b-29874369e42a",
+      "original_syllogism": "Any person who is a man is a human. Every man is a bachelor. It follows that every bachelor is a human.",
+      "normalized_syllogism": "All A are B. All A are C. Some C are B.",
+      "true_valid": false,
+      "pred_valid": true
+    },
+    {
+      "id": "857910a3-46a9-4278-9d37-739de49debd6",
+      "original_syllogism": "There are no humans that are not made of glass. Every single thing made of glass is indestructible. From this, it can be derived that some indestructible things are humans.",
+      "normalized_syllogism": "No A are not B. All B are C. Some C are A.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "c645579b-f3ec-4448-b51d-6ac03b047bd0",
+      "original_syllogism": "There are no doctors who are not medical professionals. There are no doctors who are not people with medical degrees. Therefore, some people with medical degrees are medical professionals.",
+      "normalized_syllogism": "No A are not B. No A are not C. Some C are B.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "1f010b69-61c4-4d5b-8cca-ea37c60a9bf6",
+      "original_syllogism": "There are no liquids that are not solid. Anything that is water is a liquid. At least one quantity of water is solid.",
+      "normalized_syllogism": "No A are not B. All C are A. Some C are B.",
+      "true_valid": true,
+      "pred_valid": null
+    },
+    {
+      "id": "9ee02b68-eddc-44c9-855a-103d63c9b241",
+      "original_syllogism": "Every single feline is a cat. Every single mammal is a cat. Therefore, there are mammals that are felines.",
+      "normalized_syllogism": "All A are B. All C are B. Some C are A.",
+      "true_valid": true,
+      "pred_valid": false
+    },
+    {
+      "id": "69678d2f-3489-4408-9179-f342e58e4fc1",
+      "original_syllogism": "Every car is a vehicle. At least one motorized vehicle is not a vehicle. There is at least one motorized vehicle that is not a car.",
+      "normalized_syllogism": "All A are B. Some C are not B. Some C are not A.",
+      "true_valid": false,
+      "pred_valid": true
+    }
+  ]
+}
