@@ -10,6 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import math
 
 # University color palette
 UNI_BLUE = '#004e9f'
@@ -18,6 +19,418 @@ UNI_GREY = '#909085'
 
 # Script directory for relative paths
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+# ---------------------------------------------------------------------------
+# LaTeX table helpers
+# ---------------------------------------------------------------------------
+
+def bold_best(values, fmt='.1f', direction='max'):
+    """Format values, bolding the best one. direction='max' or 'min'."""
+    if direction == 'max':
+        best = max(values)
+    else:
+        best = min(values)
+    out = []
+    for v in values:
+        s = f'{v:{fmt}}'
+        if math.isclose(v, best, abs_tol=1e-9):
+            s = r'\textbf{' + s + '}'
+        out.append(s)
+    return out
+
+
+def write_tex_file(filename, content):
+    """Write LaTeX string to SCRIPT_DIR/filename."""
+    path = os.path.join(SCRIPT_DIR, filename)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"  Saved: {path}")
+
+
+# ---------------------------------------------------------------------------
+# T1: Qwen prompt comparison
+# ---------------------------------------------------------------------------
+
+def generate_table_qwen_prompts(qwen_df):
+    """Generate LaTeX table comparing Qwen prompts (Acc, CE, CS)."""
+    prompts = qwen_df['prompt'].tolist()
+    acc_vals = qwen_df['accuracy'].tolist()
+    ce_vals = qwen_df['content_effect'].tolist()
+    cs_vals = qwen_df['combined_score'].tolist()
+
+    acc_fmt = bold_best(acc_vals, fmt='.1f', direction='max')
+    ce_fmt = bold_best(ce_vals, fmt='.2f', direction='min')
+    cs_fmt = bold_best(cs_vals, fmt='.2f', direction='max')
+
+    rows = []
+    for i, p in enumerate(prompts):
+        rows.append(f'    {p.capitalize()} & {acc_fmt[i]} & {ce_fmt[i]} & {cs_fmt[i]} \\\\')
+
+    body = '\n'.join(rows)
+
+    tex = (
+        '% Requires \\usepackage{booktabs}\n'
+        '\\begin{table}[t]\n'
+        '  \\centering\n'
+        '  \\caption{Qwen prompt template comparison on raw data.}\n'
+        '  \\label{tab:qwen_prompts}\n'
+        '  \\begin{tabular}{lccc}\n'
+        '    \\toprule\n'
+        '    Prompt & Acc~(\\%) $\\uparrow$ & CE $\\downarrow$ & CS $\\uparrow$ \\\\\n'
+        '    \\midrule\n'
+        f'{body}\n'
+        '    \\bottomrule\n'
+        '  \\end{tabular}\n'
+        '\\end{table}\n'
+    )
+
+    write_tex_file('table_qwen_prompts.tex', tex)
+
+
+# ---------------------------------------------------------------------------
+# T2: LLM raw vs normalized (Gemini + Opus, all metrics)
+# ---------------------------------------------------------------------------
+
+def generate_table_llm_raw_vs_normalized(gemini_opus_df):
+    """Generate LaTeX table: Gemini & Opus, raw vs normalized, all metrics."""
+    order = [
+        ('Gemini 3 Flash Preview', 'Raw'),
+        ('Gemini 3 Flash Preview', 'Normalized'),
+        ('Claude Opus 4.5', 'Raw'),
+        ('Claude Opus 4.5', 'Normalized'),
+    ]
+    labels = [
+        'Gemini 3 Flash (Raw)',
+        'Gemini 3 Flash (Norm.)',
+        'Claude Opus 4.5 (Raw)',
+        'Claude Opus 4.5 (Norm.)',
+    ]
+
+    cols = ['accuracy', 'acc_plausible_valid', 'acc_implausible_valid',
+            'acc_plausible_invalid', 'acc_implausible_invalid',
+            'content_effect_intra', 'content_effect_inter',
+            'content_effect', 'combined_score']
+
+    data = {}
+    for col in cols:
+        data[col] = []
+    for model, dtype in order:
+        row = gemini_opus_df[(gemini_opus_df['model'] == model) & (gemini_opus_df['data_type'] == dtype)].iloc[0]
+        for col in cols:
+            data[col].append(row[col])
+
+    # Format each column
+    fmt_cols = {}
+    for col in cols:
+        if col in ('content_effect', 'combined_score', 'content_effect_intra', 'content_effect_inter'):
+            d = 'min' if col in ('content_effect', 'content_effect_intra', 'content_effect_inter') else 'max'
+            fmt_cols[col] = bold_best(data[col], fmt='.2f', direction=d)
+        else:
+            fmt_cols[col] = bold_best(data[col], fmt='.1f', direction='max')
+
+    rows = []
+    for i, label in enumerate(labels):
+        vals = ' & '.join(fmt_cols[c][i] for c in cols)
+        rows.append(f'    {label} & {vals} \\\\')
+        if i == 1:
+            rows.append('    \\midrule')
+
+    body = '\n'.join(rows)
+
+    tex = (
+        '% Requires \\usepackage{booktabs}\n'
+        '\\begin{table*}[t]\n'
+        '  \\centering\n'
+        '  \\caption{LLM performance on raw vs.\\ normalized data.}\n'
+        '  \\label{tab:llm_raw_vs_normalized}\n'
+        '  \\begin{tabular}{l ccccc cc cc}\n'
+        '    \\toprule\n'
+        '    & & \\multicolumn{4}{c}{Syllogism Type Acc~(\\%)} & \\multicolumn{2}{c}{Content Effect} & & \\\\\n'
+        '    \\cmidrule(lr){3-6} \\cmidrule(lr){7-8}\n'
+        '    Model & Acc $\\uparrow$ & PV & IV & PI & II & Intra $\\downarrow$ & Inter $\\downarrow$ & CE $\\downarrow$ & CS $\\uparrow$ \\\\\n'
+        '    \\midrule\n'
+        f'{body}\n'
+        '    \\bottomrule\n'
+        '  \\end{tabular}\n'
+        '\\end{table*}\n'
+    )
+
+    write_tex_file('table_llm_raw_vs_normalized.tex', tex)
+
+
+# ---------------------------------------------------------------------------
+# T3: Comprehensive raw table (all approaches)
+# ---------------------------------------------------------------------------
+
+def generate_table_comprehensive_raw():
+    """Generate LaTeX table: all approaches on raw data."""
+    # Load LLM results
+    gemini_path = os.path.join(SCRIPT_DIR, 'results_google_gemini-3-flash-preview_direct.csv')
+    gemini_df = pd.read_csv(gemini_path)
+    gemini_raw = gemini_df[~gemini_df['input_file'].str.contains('polished')].iloc[0]
+
+    opus_path = os.path.join(SCRIPT_DIR, 'results_anthropic_claude-opus-4.5_direct.csv')
+    opus_df = pd.read_csv(opus_path)
+    opus_raw = opus_df[~opus_df['input_file'].str.contains('polished')].iloc[0]
+
+    # Qwen best prompt (by combined_score)
+    qwen_df = load_qwen_results()
+    best_idx = qwen_df['combined_score'].idxmax()
+    qwen_best = qwen_df.iloc[best_idx]
+    qwen_prompt = qwen_best['prompt']
+    # Load full row for sub-accuracies
+    qwen_csv = os.path.join(SCRIPT_DIR, f'results_qwen_qwen3-vl-235b-a22b-instruct_{qwen_prompt}.csv')
+    qwen_row = pd.read_csv(qwen_csv).iloc[0]
+
+    # BERT results
+    bert_results = load_bert_csv_results()
+    bert_base = bert_results.get('bert_base_original', {})
+    bert_large = bert_results.get('bert_large_original', {})
+
+    cols = ['accuracy', 'acc_plausible_valid', 'acc_implausible_valid',
+            'acc_plausible_invalid', 'acc_implausible_invalid',
+            'content_effect_intra_validity', 'content_effect_inter_validity',
+            'content_effect', 'combined_score']
+
+    labels = [
+        'Gemini 3 Flash',
+        'Claude Opus 4.5',
+        f'Qwen ({qwen_prompt})',
+        'BERT-base',
+        'BERT-large',
+    ]
+    sources = [gemini_raw, opus_raw, qwen_row, bert_base, bert_large]
+
+    data = {col: [] for col in cols}
+    for src in sources:
+        for col in cols:
+            if isinstance(src, dict):
+                data[col].append(src.get(col, 0))
+            else:
+                data[col].append(src[col])
+
+    fmt_cols = {}
+    for col in cols:
+        if col in ('content_effect', 'combined_score', 'content_effect_intra_validity', 'content_effect_inter_validity'):
+            d = 'min' if 'effect' in col and col != 'combined_score' else 'max'
+            fmt_cols[col] = bold_best(data[col], fmt='.2f', direction=d)
+        else:
+            fmt_cols[col] = bold_best(data[col], fmt='.1f', direction='max')
+
+    rows = []
+    for i, label in enumerate(labels):
+        vals = ' & '.join(fmt_cols[c][i] for c in cols)
+        rows.append(f'    {label} & {vals} \\\\')
+        if i == 2:
+            rows.append('    \\midrule')
+
+    body = '\n'.join(rows)
+
+    tex = (
+        '% Requires \\usepackage{booktabs}\n'
+        '\\begin{table*}[t]\n'
+        '  \\centering\n'
+        '  \\caption{All approaches on raw (original) data.}\n'
+        '  \\label{tab:comprehensive_raw}\n'
+        '  \\begin{tabular}{l ccccc cc cc}\n'
+        '    \\toprule\n'
+        '    & & \\multicolumn{4}{c}{Syllogism Type Acc~(\\%)} & \\multicolumn{2}{c}{Content Effect} & & \\\\\n'
+        '    \\cmidrule(lr){3-6} \\cmidrule(lr){7-8}\n'
+        '    Approach & Acc $\\uparrow$ & PV & IV & PI & II & Intra $\\downarrow$ & Inter $\\downarrow$ & CE $\\downarrow$ & CS $\\uparrow$ \\\\\n'
+        '    \\midrule\n'
+        f'{body}\n'
+        '    \\bottomrule\n'
+        '  \\end{tabular}\n'
+        '\\end{table*}\n'
+    )
+
+    write_tex_file('table_comprehensive_raw.tex', tex)
+
+
+# ---------------------------------------------------------------------------
+# T4: Comprehensive normalized table (all approaches)
+# ---------------------------------------------------------------------------
+
+def generate_table_comprehensive_normalized():
+    """Generate LaTeX table: all approaches on normalized data."""
+    # LLM results (normalized)
+    gemini_path = os.path.join(SCRIPT_DIR, 'results_google_gemini-3-flash-preview_direct.csv')
+    gemini_df = pd.read_csv(gemini_path)
+    gemini_norm = gemini_df[gemini_df['input_file'].str.contains('polished')].iloc[0]
+
+    opus_path = os.path.join(SCRIPT_DIR, 'results_anthropic_claude-opus-4.5_direct.csv')
+    opus_df = pd.read_csv(opus_path)
+    opus_norm = opus_df[opus_df['input_file'].str.contains('polished')].iloc[0]
+
+    # BERT best normalized (find which normalizer was best)
+    bert_files = {
+        'gemini': 'bert_results_bert_base_uncased_gemini.csv',
+        'opus': 'bert_results_bert_base_uncased_opus.csv',
+        'qwen': 'bert_results_bert_base_uncased_qwen.csv',
+    }
+    bert_base_best_name = None
+    bert_base_best_cs = -1
+    bert_base_best_row = None
+    for norm_name, fn in bert_files.items():
+        p = os.path.join(SCRIPT_DIR, fn)
+        if os.path.exists(p):
+            df = pd.read_csv(p)
+            row = df.iloc[-1]
+            if row['combined_score'] > bert_base_best_cs:
+                bert_base_best_cs = row['combined_score']
+                bert_base_best_row = row
+                bert_base_best_name = norm_name
+
+    bert_large_files = {
+        'gemini': 'bert_results_bert_large_uncased_gemini.csv',
+        'opus': 'bert_results_bert_large_uncased_opus.csv',
+        'qwen': 'bert_results_bert_large_uncased_qwen.csv',
+    }
+    bert_large_best_name = None
+    bert_large_best_cs = -1
+    bert_large_best_row = None
+    for norm_name, fn in bert_large_files.items():
+        p = os.path.join(SCRIPT_DIR, fn)
+        if os.path.exists(p):
+            df = pd.read_csv(p)
+            row = df.iloc[-1]
+            if row['combined_score'] > bert_large_best_cs:
+                bert_large_best_cs = row['combined_score']
+                bert_large_best_row = row
+                bert_large_best_name = norm_name
+
+    # Solver results (all 3 variants)
+    solver_df = load_solver_results()
+    solver_opus = solver_df[solver_df['model'] == 'opus'].iloc[0]
+    solver_gemini = solver_df[solver_df['model'] == 'gemini'].iloc[0]
+    solver_qwen = solver_df[solver_df['model'] == 'qwen'].iloc[0]
+
+    cols = ['accuracy', 'acc_plausible_valid', 'acc_implausible_valid',
+            'acc_plausible_invalid', 'acc_implausible_invalid',
+            'content_effect_intra_validity', 'content_effect_inter_validity',
+            'content_effect', 'combined_score']
+
+    labels = [
+        'Gemini 3 Flash',
+        'Claude Opus 4.5',
+        f'BERT-base ({bert_base_best_name})',
+        f'BERT-large ({bert_large_best_name})',
+        'Solver (opus)',
+        'Solver (gemini)',
+        'Solver (qwen)',
+    ]
+    sources = [gemini_norm, opus_norm, bert_base_best_row, bert_large_best_row,
+               solver_opus, solver_gemini, solver_qwen]
+
+    data = {col: [] for col in cols}
+    for src in sources:
+        for col in cols:
+            if isinstance(src, dict):
+                data[col].append(src.get(col, 0))
+            else:
+                data[col].append(src[col])
+
+    fmt_cols = {}
+    for col in cols:
+        if col in ('content_effect', 'combined_score', 'content_effect_intra_validity', 'content_effect_inter_validity'):
+            d = 'min' if 'effect' in col and col != 'combined_score' else 'max'
+            fmt_cols[col] = bold_best(data[col], fmt='.2f', direction=d)
+        else:
+            fmt_cols[col] = bold_best(data[col], fmt='.1f', direction='max')
+
+    rows = []
+    for i, label in enumerate(labels):
+        vals = ' & '.join(fmt_cols[c][i] for c in cols)
+        rows.append(f'    {label} & {vals} \\\\')
+        if i == 1 or i == 3:
+            rows.append('    \\midrule')
+
+    body = '\n'.join(rows)
+
+    tex = (
+        '% Requires \\usepackage{booktabs}\n'
+        '\\begin{table*}[t]\n'
+        '  \\centering\n'
+        '  \\caption{All approaches on normalized data.}\n'
+        '  \\label{tab:comprehensive_normalized}\n'
+        '  \\begin{tabular}{l ccccc cc cc}\n'
+        '    \\toprule\n'
+        '    & & \\multicolumn{4}{c}{Syllogism Type Acc~(\\%)} & \\multicolumn{2}{c}{Content Effect} & & \\\\\n'
+        '    \\cmidrule(lr){3-6} \\cmidrule(lr){7-8}\n'
+        '    Approach & Acc $\\uparrow$ & PV & IV & PI & II & Intra $\\downarrow$ & Inter $\\downarrow$ & CE $\\downarrow$ & CS $\\uparrow$ \\\\\n'
+        '    \\midrule\n'
+        f'{body}\n'
+        '    \\bottomrule\n'
+        '  \\end{tabular}\n'
+        '\\end{table*}\n'
+    )
+
+    write_tex_file('table_comprehensive_normalized.tex', tex)
+
+
+# ---------------------------------------------------------------------------
+# T5: BERT variants across all normalizers
+# ---------------------------------------------------------------------------
+
+def generate_table_bert_variants():
+    """Generate LaTeX table: BERT fine-tuning across all normalizers."""
+    bert_configs = [
+        ('BERT-base', 'original', 'bert_results_bert_base_uncased_original.csv'),
+        ('BERT-base', 'gemini', 'bert_results_bert_base_uncased_gemini.csv'),
+        ('BERT-base', 'opus', 'bert_results_bert_base_uncased_opus.csv'),
+        ('BERT-base', 'qwen', 'bert_results_bert_base_uncased_qwen.csv'),
+        ('BERT-large', 'original', 'bert_results_bert_large_uncased_original.csv'),
+        ('BERT-large', 'gemini', 'bert_results_bert_large_uncased_gemini.csv'),
+        ('BERT-large', 'opus', 'bert_results_bert_large_uncased_opus.csv'),
+        ('BERT-large', 'qwen', 'bert_results_bert_large_uncased_qwen.csv'),
+    ]
+
+    labels = []
+    acc_vals = []
+    ce_vals = []
+    cs_vals = []
+
+    for model, data_src, fn in bert_configs:
+        csv_path = os.path.join(SCRIPT_DIR, fn)
+        if not os.path.exists(csv_path):
+            continue
+        df = pd.read_csv(csv_path)
+        row = df.iloc[-1]
+        labels.append(f'{model} ({data_src})')
+        acc_vals.append(row['accuracy'])
+        ce_vals.append(row['content_effect'])
+        cs_vals.append(row['combined_score'])
+
+    acc_fmt = bold_best(acc_vals, fmt='.1f', direction='max')
+    ce_fmt = bold_best(ce_vals, fmt='.2f', direction='min')
+    cs_fmt = bold_best(cs_vals, fmt='.2f', direction='max')
+
+    rows = []
+    for i, label in enumerate(labels):
+        rows.append(f'    {label} & {acc_fmt[i]} & {ce_fmt[i]} & {cs_fmt[i]} \\\\')
+        if i == 3:
+            rows.append('    \\midrule')
+
+    body = '\n'.join(rows)
+
+    tex = (
+        '% Requires \\usepackage{booktabs}\n'
+        '\\begin{table}[t]\n'
+        '  \\centering\n'
+        '  \\caption{BERT fine-tuning results across data normalizers.}\n'
+        '  \\label{tab:bert_variants}\n'
+        '  \\begin{tabular}{lccc}\n'
+        '    \\toprule\n'
+        '    Model (data) & Acc~(\\%) $\\uparrow$ & CE $\\downarrow$ & CS $\\uparrow$ \\\\\n'
+        '    \\midrule\n'
+        f'{body}\n'
+        '    \\bottomrule\n'
+        '  \\end{tabular}\n'
+        '\\end{table}\n'
+    )
+
+    write_tex_file('table_bert_variants.tex', tex)
 
 
 def load_qwen_results():
@@ -806,7 +1219,15 @@ def main():
     plot_llm_vs_solver()
     plot_llm_vs_solver_accuracy()
 
-    print("\nDone! All plots generated successfully.")
+    # LaTeX tables
+    print("\nGenerating LaTeX tables...")
+    generate_table_qwen_prompts(qwen_df)
+    generate_table_llm_raw_vs_normalized(gemini_opus_df)
+    generate_table_comprehensive_raw()
+    generate_table_comprehensive_normalized()
+    generate_table_bert_variants()
+
+    print("\nDone! All plots and tables generated successfully.")
 
 
 if __name__ == '__main__':

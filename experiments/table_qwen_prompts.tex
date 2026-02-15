@@ -1,0 +1,21 @@
+% Requires \usepackage{booktabs}
+\begin{table}[t]
+  \centering
+  \caption{Qwen prompt template comparison on raw data.}
+  \label{tab:qwen_prompts}
+  \begin{tabular}{lccc}
+    \toprule
+    Prompt & Acc~(\%) $\uparrow$ & CE $\downarrow$ & CS $\uparrow$ \\
+    \midrule
+    Direct & 81.7 & \textbf{15.70} & \textbf{21.40} \\
+    Cot & 78.5 & 23.39 & 18.73 \\
+    Counterexample & 79.9 & 22.54 & 19.21 \\
+    Venn & 77.1 & 25.69 & 17.99 \\
+    Rules & 74.0 & 33.57 & 16.28 \\
+    Minimal & \textbf{81.9} & 17.81 & 20.81 \\
+    Symbolic & 79.6 & 21.32 & 19.38 \\
+    Comprehensive & 77.0 & 22.98 & 18.43 \\
+    Fallacy & 72.5 & 40.69 & 15.33 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
