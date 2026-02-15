@@ -208,3 +208,5 @@ __marimo__/
 
 .json
 .csv
+.env.example
+.env.example
