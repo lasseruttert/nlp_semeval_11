@@ -15,10 +15,13 @@ Usage:
 
     Or specify custom path:
         --results-csv "experiments/my_results.csv"
+
+    Note: Runs each experiment 3 times and reports mean ± std
 """
 import argparse
 import sys
 import csv
+import numpy as np
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
@@ -33,16 +36,34 @@ from src.predictor import SyllogismPredictor
 from src.evaluator import evaluate_predictions
 
 
-def save_results_to_csv(args, results, csv_path):
+def save_results_to_csv(args, all_run_results, csv_path):
     """
-    Save experiment results to CSV file.
+    Save experiment results to CSV file with mean ± std across runs.
 
     Args:
         args: Parsed command-line arguments
-        results: Dictionary of evaluation results
+        all_run_results: List of result dictionaries from multiple runs
         csv_path: Path to save the CSV file
     """
-    # Prepare row data
+    # Calculate mean and std for all metrics
+    metrics = [
+        'accuracy', 'content_effect', 'combined_score',
+        'correct_predictions', 'total_predictions'
+    ]
+    subgroup_metrics = [
+        'plausible_valid', 'implausible_valid',
+        'plausible_invalid', 'implausible_invalid'
+    ]
+    content_effect_metrics = ['intra_validity', 'inter_validity']
+
+    def get_mean_std(key, nested_key=None):
+        if nested_key:
+            values = [r[key][nested_key] for r in all_run_results]
+        else:
+            values = [r[key] for r in all_run_results]
+        return np.mean(values), np.std(values)
+
+    # Prepare row data with mean ± std
     row = {
         'timestamp': datetime.now().isoformat(),
         'model': args.model,
@@ -50,25 +71,27 @@ def save_results_to_csv(args, results, csv_path):
         'input_file': args.input,
         'output_file': args.output,
         'reference_file': args.reference,
-        'num_examples': args.limit if args.limit else results['total_predictions'],
-
-        # Main metrics
-        'accuracy': results['accuracy'],
-        'content_effect': results['content_effect'],
-        'combined_score': results['combined_score'],
-        'correct_predictions': results['correct_predictions'],
-        'total_predictions': results['total_predictions'],
-
-        # Subgroup accuracies
-        'acc_plausible_valid': results['subgroup_accuracies']['plausible_valid'],
-        'acc_implausible_valid': results['subgroup_accuracies']['implausible_valid'],
-        'acc_plausible_invalid': results['subgroup_accuracies']['plausible_invalid'],
-        'acc_implausible_invalid': results['subgroup_accuracies']['implausible_invalid'],
-
-        # Content effect breakdown
-        'content_effect_intra_validity': results['content_effect_breakdown']['intra_validity'],
-        'content_effect_inter_validity': results['content_effect_breakdown']['inter_validity'],
+        'num_runs': len(all_run_results),
+        'num_examples': args.limit if args.limit else all_run_results[0]['total_predictions'],
     }
+
+    # Add mean and std for main metrics
+    for metric in metrics:
+        mean, std = get_mean_std(metric)
+        row[f'{metric}_mean'] = mean
+        row[f'{metric}_std'] = std
+
+    # Add mean and std for subgroup accuracies
+    for metric in subgroup_metrics:
+        mean, std = get_mean_std('subgroup_accuracies', metric)
+        row[f'acc_{metric}_mean'] = mean
+        row[f'acc_{metric}_std'] = std
+
+    # Add mean and std for content effect breakdown
+    for metric in content_effect_metrics:
+        mean, std = get_mean_std('content_effect_breakdown', metric)
+        row[f'content_effect_{metric}_mean'] = mean
+        row[f'content_effect_{metric}_std'] = std
 
     # Check if file exists to determine if we need to write headers
     file_exists = Path(csv_path).exists()
@@ -200,6 +223,7 @@ def main():
     try:
         test_examples = load_test_data(args.input)
         if args.limit:
+            
             test_examples = test_examples[:args.limit]
         print(f"Loaded {len(test_examples)} test examples.\n")
     except FileNotFoundError:
@@ -215,60 +239,91 @@ def main():
         prompt_template=prompt_template
     )
 
-    # Run predictions
-    print("Running predictions...")
-    print("This may take a while depending on the number of examples...\n")
+    # Run multiple trials (hard-coded to 3)
+    NUM_RUNS = 3
+    print(f"Running {NUM_RUNS} trials for robustness...\n")
 
-    try:
-        predictions = predictor.predict_batch_as_dicts(
-            test_examples=test_examples,
-            show_progress=True
-        )
-    except Exception as e:
-        print(f"\nError during prediction: {e}")
-        sys.exit(1)
+    all_run_results = []
 
-    # Save predictions
-    print(f"\nSaving predictions to: {args.output}...")
-    try:
-        # Create output directory if it doesn't exist
-        output_path = Path(args.output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+    for run_idx in range(NUM_RUNS):
+        print("="*60)
+        print(f"RUN {run_idx + 1}/{NUM_RUNS}")
+        print("="*60)
 
-        save_predictions(predictions, args.output)
-        print(f"Predictions saved successfully.\n")
-    except Exception as e:
-        print(f"Error saving predictions: {e}")
-        sys.exit(1)
+        # Run predictions
+        print("Running predictions...")
+        print("This may take a while depending on the number of examples...\n")
 
-    # Evaluate if requested
-    if args.evaluate:
-        print("Evaluating predictions...")
         try:
-            results = evaluate_predictions(
-                ground_truth_path=args.reference,
-                predictions_path=args.output,
-                output_path=None,  # Don't save evaluation results to separate file
-                verbose=True
+            predictions = predictor.predict_batch_as_dicts(
+                test_examples=test_examples,
+                show_progress=True
             )
-
-            # Save results to CSV
-            if args.results_csv:
-                csv_path = args.results_csv
-            else:
-                # Auto-generate CSV filename from model and prompt
-                model_safe = args.model.replace('/', '_').replace('\\', '_')
-                csv_path = f"experiments/results_{model_safe}_{args.prompt}.csv"
-
-            # Create experiments directory if it doesn't exist
-            Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
-
-            save_results_to_csv(args, results, csv_path)
-            print(f"Results appended to: {csv_path}")
-
         except Exception as e:
-            print(f"Error during evaluation: {e}")
+            print(f"\nError during prediction: {e}")
             sys.exit(1)
+
+        # Save predictions with run number in filename
+        output_path = Path(args.output)
+        run_output = output_path.parent / f"{output_path.stem}_run{run_idx + 1}{output_path.suffix}"
+
+        print(f"\nSaving predictions to: {run_output}...")
+        try:
+            # Create output directory if it doesn't exist
+            run_output.parent.mkdir(parents=True, exist_ok=True)
+
+            save_predictions(predictions, str(run_output))
+            print(f"Predictions saved successfully.\n")
+        except Exception as e:
+            print(f"Error saving predictions: {e}")
+            sys.exit(1)
+
+        # Evaluate if requested
+        if args.evaluate:
+            print("Evaluating predictions...")
+            try:
+                results = evaluate_predictions(
+                    ground_truth_path=args.reference,
+                    predictions_path=str(run_output),
+                    output_path=None,  # Don't save evaluation results to separate file
+                    verbose=True
+                )
+                all_run_results.append(results)
+
+            except Exception as e:
+                print(f"Error during evaluation: {e}")
+                sys.exit(1)
+
+        print()  # Extra newline between runs
+
+    # Save aggregated results to CSV if evaluation was done
+    if args.evaluate and all_run_results:
+        print("="*60)
+        print(f"AGGREGATED RESULTS (N={NUM_RUNS} runs)")
+        print("="*60)
+
+        # Print summary statistics
+        acc_values = [r['accuracy'] for r in all_run_results]
+        ce_values = [r['content_effect'] for r in all_run_results]
+        cs_values = [r['combined_score'] for r in all_run_results]
+
+        print(f"Accuracy: {np.mean(acc_values):.4f} ± {np.std(acc_values):.4f}")
+        print(f"Content Effect: {np.mean(ce_values):.4f} ± {np.std(ce_values):.4f}")
+        print(f"Combined Score: {np.mean(cs_values):.4f} ± {np.std(cs_values):.4f}\n")
+
+        # Save results to CSV
+        if args.results_csv:
+            csv_path = args.results_csv
+        else:
+            # Auto-generate CSV filename from model and prompt
+            model_safe = args.model.replace('/', '_').replace('\\', '_')
+            csv_path = f"experiments/results_{model_safe}_{args.prompt}.csv"
+
+        # Create experiments directory if it doesn't exist
+        Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
+
+        save_results_to_csv(args, all_run_results, csv_path)
+        print(f"Aggregated results appended to: {csv_path}")
 
     print("\nExperiment completed successfully!")
 

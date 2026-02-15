@@ -1,0 +1,20 @@
+% Requires \usepackage{booktabs}
+\begin{table*}[t]
+  \centering
+  \caption{All approaches on raw (original) data.}
+  \label{tab:comprehensive_raw}
+  \begin{tabular}{l ccccc cc cc}
+    \toprule
+    & & \multicolumn{4}{c}{Syllogism Type Acc~(\%)} & \multicolumn{2}{c}{Content Effect} & & \\
+    \cmidrule(lr){3-6} \cmidrule(lr){7-8}
+    Approach & Acc $\uparrow$ & PV & IV & PI & II & Intra $\downarrow$ & Inter $\downarrow$ & CE $\downarrow$ & CS $\uparrow$ \\
+    \midrule
+    Gemini 3 Flash & 89.4 & 82.1 & 88.3 & \textbf{95.7} & 91.5 & 5.26 & 8.39 & 6.82 & 29.24 \\
+    Claude Opus 4.5 & 90.6 & \textbf{96.2} & 92.9 & 83.3 & 89.8 & 4.92 & 8.00 & 6.46 & 30.11 \\
+    Qwen (direct) & 81.7 & 82.1 & 62.5 & 88.0 & 93.9 & 12.73 & 18.68 & 15.70 & 21.40 \\
+    \midrule
+    BERT-base & \textbf{94.1} & 93.8 & \textbf{96.7} & 90.6 & \textbf{95.1} & 3.72 & 2.35 & 3.03 & 39.28 \\
+    BERT-large & 90.2 & 88.8 & 90.4 & 90.2 & 91.5 & \textbf{1.48} & \textbf{1.23} & \textbf{1.36} & \textbf{48.57} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}

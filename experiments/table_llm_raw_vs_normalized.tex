@@ -1,0 +1,19 @@
+% Requires \usepackage{booktabs}
+\begin{table*}[t]
+  \centering
+  \caption{LLM performance on raw vs.\ normalized data.}
+  \label{tab:llm_raw_vs_normalized}
+  \begin{tabular}{l ccccc cc cc}
+    \toprule
+    & & \multicolumn{4}{c}{Syllogism Type Acc~(\%)} & \multicolumn{2}{c}{Content Effect} & & \\
+    \cmidrule(lr){3-6} \cmidrule(lr){7-8}
+    Model & Acc $\uparrow$ & PV & IV & PI & II & Intra $\downarrow$ & Inter $\downarrow$ & CE $\downarrow$ & CS $\uparrow$ \\
+    \midrule
+    Gemini 3 Flash (Raw) & 89.4 & 82.1 & 88.3 & \textbf{95.7} & \textbf{91.5} & 5.26 & 8.39 & 6.82 & 29.24 \\
+    Gemini 3 Flash (Norm.) & \textbf{92.7} & 92.9 & \textbf{93.8} & 94.9 & 89.4 & \textbf{3.14} & 3.14 & 3.14 & \textbf{38.31} \\
+    \midrule
+    Claude Opus 4.5 (Raw) & 90.6 & \textbf{96.2} & 92.9 & 83.3 & 89.8 & 4.92 & 8.00 & 6.46 & 30.11 \\
+    Claude Opus 4.5 (Norm.) & 87.8 & 89.6 & 87.5 & 90.2 & 84.2 & 4.05 & \textbf{1.97} & \textbf{3.01} & 36.75 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}

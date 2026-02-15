@@ -45,100 +45,6 @@ Uses thinking model with CoT prompt. Generates 3.4x more reasoning tokens (872).
 conda run -n semeval2026_task11 python experiments/run_experiment.py --model "qwen/qwen3-vl-235b-a22b-thinking" --prompt "cot" --input "train_data/subtask 1/train_data.json" --output "predictions/qwen_thinking_cot.json" --evaluate --reference "train_data/subtask 1/train_data.json"
 ```
 
----
-
-## Budget-Friendly Models
-
-### DeepSeek Chat - Direct Prompt 💰 CHEAPEST
-**Cost**: ~$0.04 | **Examples**: 960 | **Best for**: Quick testing, budget constraints
-Extremely cheap option. Good for rapid iteration and testing prompt effectiveness.
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "deepseek/deepseek-chat" --prompt "direct" --input "train_data/subtask 1/train_data.json" --output "predictions/deepseek_chat_direct.json" --evaluate --reference "train_data/subtask 1/train_data.json"
-```
-
-### DeepSeek Chat - Chain of Thought Prompt
-**Cost**: ~$0.08 | **Examples**: 960 | **Best for**: Testing if CoT improves cheap models
-Tests whether explicit reasoning steps help budget models perform better.
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "deepseek/deepseek-chat" --prompt "cot" --input "train_data/subtask 1/train_data.json" --output "predictions/deepseek_chat_cot.json" --evaluate --reference "train_data/subtask 1/train_data.json"
-```
-
-### Meta Llama 3.1 70B - Direct Prompt 🎯 BEST VALUE
-**Cost**: ~$0.20 | **Examples**: 960 | **Best for**: Good performance/cost ratio
-Strong open-source model. Often performs well on reasoning tasks at reasonable cost.
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "meta-llama/llama-3.1-70b-instruct" --prompt "direct" --input "train_data/subtask 1/train_data.json" --output "predictions/llama_70b_direct.json" --evaluate --reference "train_data/subtask 1/train_data.json"
-```
-
-### Meta Llama 3.1 70B - Chain of Thought Prompt
-**Cost**: ~$0.32 | **Examples**: 960 | **Best for**: Testing if CoT helps Llama models
-Tests whether step-by-step reasoning improves Llama's logical reasoning performance.
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "meta-llama/llama-3.1-70b-instruct" --prompt "cot" --input "train_data/subtask 1/train_data.json" --output "predictions/llama_70b_cot.json" --evaluate --reference "train_data/subtask 1/train_data.json"
-```
-
----
-
-## Premium Models (Limited Data to Control Costs)
-
-### Claude 3.5 Sonnet - Direct Prompt (100 examples)
-**Cost**: ~$0.10 | **Examples**: 100 | **Best for**: High-quality baseline comparison
-Premium model limited to 100 examples for cost control. Known for strong reasoning.
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "anthropic/claude-3.5-sonnet" --prompt "direct" --input "train_data/subtask 1/train_data.json" --output "predictions/claude_sonnet_direct_limited.json" --evaluate --reference "train_data/subtask 1/train_data.json" --limit 100
-```
-
-### Claude 3.5 Sonnet - Chain of Thought (100 examples)
-**Cost**: ~$0.15 | **Examples**: 100 | **Best for**: Testing if CoT helps Claude
-Tests whether explicit reasoning steps improve Claude's already strong reasoning ability.
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "anthropic/claude-3.5-sonnet" --prompt "cot" --input "train_data/subtask 1/train_data.json" --output "predictions/claude_sonnet_cot_limited.json" --evaluate --reference "train_data/subtask 1/train_data.json" --limit 100
-```
-
-### GPT-4o - Direct Prompt (100 examples)
-**Cost**: ~$0.08 | **Examples**: 100 | **Best for**: OpenAI's flagship model comparison
-Premium OpenAI model limited to 100 examples. Strong general reasoning capabilities.
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "openai/gpt-4o" --prompt "direct" --input "train_data/subtask 1/train_data.json" --output "predictions/gpt4o_direct_limited.json" --evaluate --reference "train_data/subtask 1/train_data.json" --limit 100
-```
-
-### GPT-4o - Chain of Thought (100 examples)
-**Cost**: ~$0.12 | **Examples**: 100 | **Best for**: Testing CoT with GPT-4o
-Tests whether step-by-step reasoning improves GPT-4o's logical reasoning.
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "openai/gpt-4o" --prompt "cot" --input "train_data/subtask 1/train_data.json" --output "predictions/gpt4o_cot_limited.json" --evaluate --reference "train_data/subtask 1/train_data.json" --limit 100
-```
-
----
-
-## Additional Experiments
-
-### DeepSeek R1 - Thinking Model (Direct Prompt)
-**Cost**: ~$1.60 | **Examples**: 960 | **Best for**: Alternative thinking model comparison
-DeepSeek's reasoning model. Use direct prompt only (no CoT needed for thinking models).
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "deepseek/deepseek-r1" --prompt "direct" --input "train_data/subtask 1/train_data.json" --output "predictions/deepseek_r1_direct.json" --evaluate --reference "train_data/subtask 1/train_data.json"
-```
-
-### Google Gemini Pro - Direct Prompt
-**Cost**: ~$0.12 | **Examples**: 960 | **Best for**: Google model comparison
-Google's capable model at reasonable cost. Good for diversifying model coverage.
-
-```powershell
-conda run -n semeval2026_task11 python experiments/run_experiment.py --model "google/gemini-pro" --prompt "direct" --input "train_data/subtask 1/train_data.json" --output "predictions/gemini_pro_direct.json" --evaluate --reference "train_data/subtask 1/train_data.json"
-```
-
----
-
 ## Testing on Test Data (Final Predictions)
 
 ### Qwen Thinking - Direct Prompt on Test Data
@@ -168,31 +74,6 @@ All experiments append to one CSV file instead of separate files per model/promp
 ```powershell
 conda run -n semeval2026_task11 python experiments/run_experiment.py --model "qwen/qwen3-vl-235b-a22b-instruct" --prompt "direct" --input "train_data/subtask 1/train_data.json" --output "predictions/qwen_instruct_direct.json" --evaluate --reference "train_data/subtask 1/train_data.json" --results-csv "experiments/all_results.csv"
 ```
-
----
-
-## Cost Comparison Table
-
-Based on 960 training examples:
-
-| Model | Prompt | Cost/Run | Speed | Accuracy (Est.) | Value Rating |
-|-------|--------|----------|-------|-----------------|--------------|
-| DeepSeek Chat | Direct | $0.04 | Fast | Medium | ⭐⭐⭐⭐⭐ |
-| Qwen Instruct | Direct | $0.08 | Fast | Medium-High | ⭐⭐⭐⭐⭐ |
-| DeepSeek Chat | CoT | $0.08 | Fast | Medium | ⭐⭐⭐⭐ |
-| Gemini Pro | Direct | $0.12 | Fast | Medium-High | ⭐⭐⭐⭐ |
-| Qwen Instruct | CoT | $0.12 | Medium | Medium-High | ⭐⭐⭐⭐ |
-| Llama 3.1 70B | Direct | $0.20 | Fast | High | ⭐⭐⭐⭐ |
-| Llama 3.1 70B | CoT | $0.32 | Medium | High | ⭐⭐⭐ |
-| Claude 3.5 (100) | Direct | $0.10 | Medium | Very High | ⭐⭐⭐ |
-| GPT-4o (100) | Direct | $0.08 | Medium | Very High | ⭐⭐⭐ |
-| Qwen Thinking | Direct | $1.20 | Slow | Very High | ⭐⭐ |
-| DeepSeek R1 | Direct | $1.60 | Slow | Very High | ⭐⭐ |
-| Qwen Thinking | CoT | $3.60 | Very Slow | Very High | ⭐ (Redundant) |
-
-**Value Rating**: Performance per dollar (⭐⭐⭐⭐⭐ = best value)
-
----
 
 ## Results Files
 
