@@ -16,6 +16,179 @@ from typing import List, Tuple, Union
 # ]
 # ------------------------------------------------------------
 TASKS: List[Union[str, List[str]]] = [
+    # ===== NORMALIZATION (Test Data) =====
+    # Normalize test data with different models to prepare for formal validity checks
+
+    # # Qwen - Test Data Normalization
+    # [
+    #     "experiments/run_experiment2.1.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--input", "test_data/subtask 1/test_data_subtask_1.json",
+    #     "--output", "data/polished/test_polished_variables_qwen.json"
+    # ],
+
+    # # Gemini - Test Data Normalization
+    # [
+    #     "experiments/run_experiment2.1.py",
+    #     "--model", "google/gemini-3-flash-preview",
+    #     "--input", "test_data/subtask 1/test_data_subtask_1.json",
+    #     "--output", "data/polished/test_polished_variables_gemini.json"
+    # ],
+
+    # # Claude Opus 4.5 - Test Data Normalization
+    # [
+    #     "experiments/run_experiment2.1.py",
+    #     "--model", "anthropic/claude-opus-4.5",
+    #     "--input", "test_data/subtask 1/test_data_subtask_1.json",
+    #     "--output", "data/polished/test_polished_variables_opus.json"
+    # ],
+
+    # Claude Opus 4.6 - Test Data Normalization
+    [
+        "experiments/run_experiment2.1.py",
+        "--model", "anthropic/claude-opus-4.6",
+        "--input", "test_data/subtask 1/test_data_subtask_1.json",
+        "--output", "data/polished/test_polished_variables_opus46.json"
+    ],
+
+    # ===== FORMAL VALIDITY (Test Data - No Evaluation) =====
+    # Run formal logic check on normalized test data (prediction only, no ground truth)
+
+    # # Formal validity on Qwen-normalized test data
+    # [
+    #     "experiments/run_experiment2.2.py",
+    #     "--input", "data/polished/test_polished_variables_qwen.json",
+    #     "--output", "predictions/test_formal_validity_qwen.json"
+    # ],
+
+    # # Formal validity on Gemini-normalized test data
+    # [
+    #     "experiments/run_experiment2.2.py",
+    #     "--input", "data/polished/test_polished_variables_gemini.json",
+    #     "--output", "predictions/test_formal_validity_gemini.json"
+    # ],
+
+    # # Formal validity on Opus-normalized test data
+    # [
+    #     "experiments/run_experiment2.2.py",
+    #     "--input", "data/polished/test_polished_variables_opus.json",
+    #     "--output", "predictions/test_formal_validity_opus.json"
+    # ],
+
+    # ===== LLM EXPERIMENTS (Test Data - No Evaluation) =====
+    # For each LLM: raw+direct, normalized+direct, normalized+formal
+    # Output: predictions/<run_name>/predictions.json
+
+    # # QWEN - Raw test data + direct prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "direct",
+    #     "--input", "test_data/subtask 1/test_data_subtask_1.json",
+    #     "--output", "predictions/qwen_raw_direct/predictions.json"
+    # ],
+
+    # # QWEN - Normalized test data + direct prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "direct",
+    #     "--input", "data/polished/test_polished_variables_qwen.json",
+    #     "--output", "predictions/qwen_normalized_direct/predictions.json"
+    # ],
+
+    # # QWEN - Normalized test data + formal prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+    #     "--prompt", "formal",
+    #     "--input", "data/polished/test_polished_variables_qwen.json",
+    #     "--output", "predictions/qwen_normalized_formal/predictions.json"
+    # ],
+
+    # # GEMINI - Raw test data + direct prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "google/gemini-3-flash-preview",
+    #     "--prompt", "direct",
+    #     "--input", "test_data/subtask 1/test_data_subtask_1.json",
+    #     "--output", "predictions/gemini_raw_direct/predictions.json"
+    # ],
+
+    # # GEMINI - Normalized test data + direct prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "google/gemini-3-flash-preview",
+    #     "--prompt", "direct",
+    #     "--input", "data/polished/test_polished_variables_gemini.json",
+    #     "--output", "predictions/gemini_normalized_direct/predictions.json"
+    # ],
+
+    # # GEMINI - Normalized test data + formal prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "google/gemini-3-flash-preview",
+    #     "--prompt", "formal",
+    #     "--input", "data/polished/test_polished_variables_gemini.json",
+    #     "--output", "predictions/gemini_normalized_formal/predictions.json"
+    # ],
+
+    # # OPUS - Raw test data + direct prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "anthropic/claude-opus-4.5",
+    #     "--prompt", "direct",
+    #     "--input", "test_data/subtask 1/test_data_subtask_1.json",
+    #     "--output", "predictions/opus_raw_direct/predictions.json"
+    # ],
+
+    # # OPUS - Normalized test data + direct prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "anthropic/claude-opus-4.5",
+    #     "--prompt", "direct",
+    #     "--input", "data/polished/test_polished_variables_opus.json",
+    #     "--output", "predictions/opus_normalized_direct/predictions.json"
+    # ],
+
+    # # OPUS - Normalized test data + formal prompt
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "anthropic/claude-opus-4.5",
+    #     "--prompt", "formal",
+    #     "--input", "data/polished/test_polished_variables_opus.json",
+    #     "--output", "predictions/opus_normalized_formal/predictions.json"
+    # ],
+
+    # ===== OPUS 4.6 EXPERIMENTS =====
+
+    # OPUS 4.6 - Raw test data + direct prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "anthropic/claude-opus-4.6",
+        "--prompt", "direct",
+        "--input", "test_data/subtask 1/test_data_subtask_1.json",
+        "--output", "predictions/opus46_raw_direct/predictions.json"
+    ],
+
+    # OPUS 4.6 - Normalized test data + direct prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "anthropic/claude-opus-4.6",
+        "--prompt", "direct",
+        "--input", "data/polished/test_polished_variables_opus46.json",
+        "--output", "predictions/opus46_normalized_direct/predictions.json"
+    ],
+
+    # OPUS 4.6 - Normalized test data + formal prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "anthropic/claude-opus-4.6",
+        "--prompt", "formal",
+        "--input", "data/polished/test_polished_variables_opus46.json",
+        "--output", "predictions/opus46_normalized_formal/predictions.json"
+    ],
+
     # # 1. Qwen Instruct - Direct Prompt
     # [
     #     "experiments/run_experiment.py",
@@ -114,16 +287,17 @@ TASKS: List[Union[str, List[str]]] = [
     #     "--evaluate",
     #     "--reference", "train_data/subtask 1/train_data.json"
     # ],
-    
-    [
-        "experiments/run_experiment.py",
-        "--model", "google/gemini-3-flash-preview",
-        "--prompt", "direct",
-        "--input", "train_data/subtask 1/polished_syllogisms_variables_opus.json",
-        "--output", "predictions/google_gemini3_direct.json",
-        "--evaluate",
-        "--reference", "train_data/subtask 1/train_data.json",
-    ],
+
+    # Example: LLM prediction on train data (with evaluation)
+    # [
+    #     "experiments/run_experiment.py",
+    #     "--model", "google/gemini-3-flash-preview",
+    #     "--prompt", "direct",
+    #     "--input", "data/polished/polished_syllogisms_variables_opus.json",
+    #     "--output", "predictions/google_gemini3_direct.json",
+    #     "--evaluate",
+    #     "--reference", "train_data/subtask 1/train_data.json",
+    # ],
     
     # [
     #     "experiments/run_experiment.py",
@@ -174,12 +348,16 @@ def normalize_tasks(raw: List[Union[str, List[str]]]) -> List[List[str]]:
     return out
 
 def run_command(cmd_parts: List[str]) -> Tuple[int, str]:
-    full_cmd = [sys.executable, *cmd_parts]
+    # Use -u flag for unbuffered output so we see prints in real-time
+    full_cmd = [sys.executable, "-u", *cmd_parts]
     try:
+        # Explicitly pass through stdout/stderr and flush output
         rc = subprocess.run(
             full_cmd,
             check=False,
             env=os.environ.copy(),
+            stdout=None,  # Pass through to parent stdout
+            stderr=None,  # Pass through to parent stderr
         ).returncode
         return rc, " ".join(full_cmd)
     except Exception as e:

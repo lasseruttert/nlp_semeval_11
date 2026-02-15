@@ -510,6 +510,81 @@ KEY REMINDERS:
     return prompt
 
 
+def formal_abstract_prompt(syllogism: str) -> str:
+    """
+    Prompt specifically for normalized syllogisms using abstract variables (A, B, C).
+    Emphasizes pure formal reasoning without any real-world associations.
+
+    Args:
+        syllogism: The normalized syllogism with abstract variables
+
+    Returns:
+        Formatted prompt string
+    """
+    prompt = f"""CRITICAL: You are evaluating a FORMAL LOGICAL ARGUMENT using ABSTRACT VARIABLES.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KEY CONTEXT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The input uses ABSTRACT VARIABLES (A, B, C, etc.) that have NO REAL-WORLD MEANING.
+- A, B, C are PURELY SYMBOLIC placeholders
+- They represent arbitrary sets with NO properties except their logical relationships
+- Do NOT assign any concrete interpretation to these variables
+- Do NOT apply any real-world knowledge or associations
+
+This is FORMAL SYMBOLIC LOGIC - evaluate ONLY the abstract structure.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARGUMENT (Abstract Form)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{syllogism}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EVALUATION RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VALID = The conclusion follows by LOGICAL NECESSITY from the premises
+INVALID = The conclusion does NOT necessarily follow
+
+CRITICAL REMINDERS:
+1. Treat A, B, C as completely abstract - no meaning beyond their logical relations
+2. Apply ONLY formal logic rules - no heuristics, no intuition, no content
+3. The variables could represent ANYTHING - focus on structure alone
+
+DISTRIBUTION (for categorical syllogisms):
+- "All X are Y" → X distributed, Y undistributed
+- "No X are Y" → Both X and Y distributed
+- "Some X are Y" → Neither X nor Y distributed
+- "Some X are not Y" → Y distributed, X undistributed
+
+VALIDITY RULES (if ANY violated → INVALID):
+1. Middle term (in premises only) must be distributed at least once
+2. If term distributed in conclusion, must be distributed in premise
+3. Two negative premises cannot yield valid conclusion
+4. If one premise negative, conclusion must be negative
+5. Two particular ("some") premises cannot yield valid conclusion
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+METHOD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. IDENTIFY the three terms and their positions
+2. CHECK distribution of each term in each premise
+3. APPLY the 5 formal validity rules
+4. VERIFY using counterexample test (can premises be true while conclusion false?)
+
+THINK PURELY ABSTRACTLY:
+- Imagine A, B, C as arbitrary sets
+- No semantic content whatsoever
+- Only set-theoretic relationships matter
+
+Respond with ONLY: true or false"""
+
+    return prompt
+
+
 def normalization_replace_prompt(syllogism: str) -> str:
     """
     Normalize 3-sentence syllogism into strict categorical A/E/I/O form
@@ -607,8 +682,12 @@ PROMPT_TEMPLATES: dict[str, Callable[[str], str]] = {
     "fallacy": fallacy_focus_prompt,
     "reasoning_then_answer": reasoning_then_answer_prompt,
     "reason": reasoning_then_answer_prompt,
-    "normalization": normalization_prompt,
-    "normalize": normalization_prompt,
+    "formal_abstract": formal_abstract_prompt,
+    "formal": formal_abstract_prompt,
+    "abstract": formal_abstract_prompt,
+    "normalized": formal_abstract_prompt,
+    "normalization": normalization_replace_prompt,
+    "normalize": normalization_replace_prompt,
     "normalization_replace": normalization_replace_prompt,
     "normalize_replace": normalization_replace_prompt,
 }

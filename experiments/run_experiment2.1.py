@@ -12,11 +12,21 @@ The JSON schema is IDENTICAL to the input:
   }
 ]
 
-Usage:
-    poetry run python experiments/run_experiment2.1.py --model "qwen/qwen3-vl-235b-a22b-instruct" --input "train_data/subtask 1/train_data.json" --output "data/polished/polished_syllogisms_variables.json"
+Usage for train data:
+    poetry run python experiments/run_experiment2.1.py \
+        --model "qwen/qwen3-vl-235b-a22b-instruct" \
+        --input "train_data/subtask 1/train_data.json" \
+        --output "data/polished/polished_syllogisms_variables.json"
 
-    model alternative 1: google/gemini-3-flash-preview
-    model alternative 2: anthropic/claude-opus-4.5
+Usage for test data:
+    poetry run python experiments/run_experiment2.1.py \
+        --model "qwen/qwen3-vl-235b-a22b-instruct" \
+        --input "test_data/subtask 1/test_data_subtask_1.json" \
+        --output "data/polished/test_polished_variables.json"
+
+Model alternatives:
+    - google/gemini-3-flash-preview
+    - anthropic/claude-opus-4.5
 
 Optional:
     --limit 100

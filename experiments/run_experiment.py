@@ -1,22 +1,41 @@
 """
 Main experiment runner for SemEval 2026 Task 11 - Subtask 1.
 
-Usage:
-    poetry run python experiments/run_experiment.py --model "anthropic/claude-3.5-sonnet" --prompt "direct" --input "train_data/subtask 1/train_data.json" --output "predictions/test_predictions.json" --evaluate --reference "train_data/subtask 1/train_data.json"
+Usage for train data (with evaluation):
+    poetry run python experiments/run_experiment.py \
+        --model "anthropic/claude-3.5-sonnet" \
+        --prompt "direct" \
+        --input "train_data/subtask 1/train_data.json" \
+        --output "predictions/train_predictions.json" \
+        --evaluate \
+        --reference "train_data/subtask 1/train_data.json"
 
-    If syllogisms categorical form is present in the data/polished folder then:
+    If syllogisms categorical form is present in the data/polished folder:
 
-    poetry run python experiments/run_experiment.py --model "anthropic/claude-3.5-sonnet" --prompt "direct" --input "data/polished/polished_syllogisms_variables.json" --output "predictions/test_predictions_syllogisms_variables.json" --evaluate --reference "train_data/subtask 1/train_data.json"
+    poetry run python experiments/run_experiment.py \
+        --model "anthropic/claude-3.5-sonnet" \
+        --prompt "direct" \
+        --input "data/polished/polished_syllogisms_variables.json" \
+        --output "predictions/train_predictions_variables.json" \
+        --evaluate \
+        --reference "train_data/subtask 1/train_data.json"
 
-    poetry run python experiments/run_experiment.py --model "anthropic/claude-3.5-sonnet" --prompt "direct" --input "data/polished/polished_syllogisms.json" --output "predictions/test_predictions_syllogisms.json" --evaluate --reference "train_data/subtask 1/train_data.json"
+Usage for test data (prediction only, no evaluation):
+    poetry run python experiments/run_experiment.py \
+        --model "anthropic/claude-3.5-sonnet" \
+        --prompt "direct" \
+        --input "test_data/subtask 1/test_data_subtask_1.json" \
+        --output "predictions/test_predictions.json"
 
-    Results are automatically saved to CSV with filename:
-        experiments/results_{model}_{prompt}.csv
+    Note: Omit --evaluate and --reference flags when running on test data
 
-    Or specify custom path:
-        --results-csv "experiments/my_results.csv"
+Results are automatically saved to CSV with filename:
+    experiments/results_{model}_{prompt}.csv
 
-    Note: Runs each experiment 3 times and reports mean ± std
+Or specify custom path:
+    --results-csv "experiments/my_results.csv"
+
+Note: Runs each experiment 3 times and reports mean ± std (when evaluating)
 """
 import argparse
 import sys
@@ -239,11 +258,15 @@ def main():
         prompt_template=prompt_template
     )
 
-    # Run multiple trials (hard-coded to 3)
-    NUM_RUNS = 3
-    print(f"Running {NUM_RUNS} trials for robustness...\n")
+    # Run multiple trials (only when evaluating)
+    NUM_RUNS = 3 if args.evaluate else 1
+    if args.evaluate:
+        print(f"Running {NUM_RUNS} trials for robustness (will save only the best)...\n")
+    else:
+        print(f"Running {NUM_RUNS} trial (no evaluation)...\n")
 
     all_run_results = []
+    all_run_predictions = []  # Store predictions from each run
 
     for run_idx in range(NUM_RUNS):
         print("="*60)
@@ -263,32 +286,31 @@ def main():
             print(f"\nError during prediction: {e}")
             sys.exit(1)
 
-        # Save predictions with run number in filename
-        output_path = Path(args.output)
-        run_output = output_path.parent / f"{output_path.stem}_run{run_idx + 1}{output_path.suffix}"
-
-        print(f"\nSaving predictions to: {run_output}...")
-        try:
-            # Create output directory if it doesn't exist
-            run_output.parent.mkdir(parents=True, exist_ok=True)
-
-            save_predictions(predictions, str(run_output))
-            print(f"Predictions saved successfully.\n")
-        except Exception as e:
-            print(f"Error saving predictions: {e}")
-            sys.exit(1)
+        # Store predictions in memory (will save best one later)
+        all_run_predictions.append(predictions)
+        print(f"\nRun {run_idx + 1} completed.\n")
 
         # Evaluate if requested
         if args.evaluate:
             print("Evaluating predictions...")
             try:
+                # Save predictions temporarily for evaluation
+                import tempfile
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+                    temp_path = tmp.name
+                    save_predictions(predictions, temp_path)
+
                 results = evaluate_predictions(
                     ground_truth_path=args.reference,
-                    predictions_path=str(run_output),
+                    predictions_path=temp_path,
                     output_path=None,  # Don't save evaluation results to separate file
                     verbose=True
                 )
                 all_run_results.append(results)
+
+                # Clean up temp file
+                import os
+                os.unlink(temp_path)
 
             except Exception as e:
                 print(f"Error during evaluation: {e}")
@@ -296,7 +318,12 @@ def main():
 
         print()  # Extra newline between runs
 
-    # Save aggregated results to CSV if evaluation was done
+    # ---------------------------------------------------------
+    # Save best predictions and aggregated results
+    # ---------------------------------------------------------
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     if args.evaluate and all_run_results:
         print("="*60)
         print(f"AGGREGATED RESULTS (N={NUM_RUNS} runs)")
@@ -311,6 +338,17 @@ def main():
         print(f"Content Effect: {np.mean(ce_values):.4f} ± {np.std(ce_values):.4f}")
         print(f"Combined Score: {np.mean(cs_values):.4f} ± {np.std(cs_values):.4f}\n")
 
+        # Find the best run based on combined score
+        best_run_idx = np.argmax(cs_values)
+        best_combined_score = cs_values[best_run_idx]
+
+        print(f"Best run: Run {best_run_idx + 1} (Combined Score: {best_combined_score:.4f})")
+        print(f"Saving predictions from best run only...\n")
+
+        # Save best predictions
+        save_predictions(all_run_predictions[best_run_idx], str(output_path))
+        print(f"✅ Best predictions saved to: {output_path}\n")
+
         # Save results to CSV
         if args.results_csv:
             csv_path = args.results_csv
@@ -323,9 +361,18 @@ def main():
         Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
 
         save_results_to_csv(args, all_run_results, csv_path)
-        print(f"Aggregated results appended to: {csv_path}")
+        print(f"✅ Aggregated results appended to: {csv_path}")
 
-    print("\nExperiment completed successfully!")
+    else:
+        # No evaluation - just save the single run
+        print("="*60)
+        print(f"PREDICTION COMPLETED")
+        print("="*60)
+
+        save_predictions(all_run_predictions[0], str(output_path))
+        print(f"✅ Predictions saved to: {output_path}")
+
+    print("\n✅ Experiment completed successfully!")
 
 
 if __name__ == "__main__":

@@ -1,101 +1,165 @@
-"""
-Runner script to execute all BERT/RoBERTa checkpoint experiments.
-
-For checkpoints trained on 'original' data: uses train_data.json
-For checkpoints trained on other sources (gemini, opus, qwen): uses polished_syllogisms_variables_opus.json
-"""
-import subprocess
+#!/usr/bin/env python3
+# runner.py
+import os
 import sys
-from pathlib import Path
+import shlex
+import subprocess
+from typing import List, Tuple, Union
 
-# All checkpoints to run
-CHECKPOINTS = [
-    "experiments/data_source_search/bert_base_uncased_original/checkpoint-235",
-    "experiments/data_source_search/bert_base_uncased_gemini/checkpoint-235",
-    "experiments/data_source_search/bert_base_uncased_opus/checkpoint-329",
-    "experiments/data_source_search/bert_base_uncased_qwen/checkpoint-423",
-    "experiments/data_source_search/bert_large_uncased_original/checkpoint-282",
-    "experiments/data_source_search/bert_large_uncased_gemini/checkpoint-470",
-    "experiments/data_source_search/bert_large_uncased_opus/checkpoint-470",
-    "experiments/data_source_search/bert_large_uncased_qwen/checkpoint-470",
-    "experiments/data_source_search/roberta_base_original/checkpoint-188",
-    "experiments/data_source_search/roberta_base_gemini/checkpoint-376",
-    "experiments/data_source_search/roberta_base_opus/checkpoint-423",
-    "experiments/data_source_search/roberta_base_qwen/checkpoint-94",
+# ------------------------------------------------------------
+# LLM Experiment Tasks - Test Data Predictions
+#
+# For each LLM (Qwen, Gemini, Opus), run 3 configurations:
+# 1. Raw test data + direct prompt
+# 2. Normalized test data + direct prompt
+# 3. Normalized test data + formal prompt (new)
+# ------------------------------------------------------------
+TASKS: List[Union[str, List[str]]] = [
+    # ===== QWEN EXPERIMENTS =====
+
+    # Qwen - Raw test data + direct prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+        "--prompt", "direct",
+        "--input", "test_data/subtask 1/test_data_subtask_1.json",
+        "--output", "predictions/qwen_raw_direct.json"
+    ],
+
+    # Qwen - Normalized test data + direct prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+        "--prompt", "direct",
+        "--input", "data/polished/test_polished_variables_qwen.json",
+        "--output", "predictions/qwen_normalized_direct.json"
+    ],
+
+    # Qwen - Normalized test data + formal prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "qwen/qwen3-vl-235b-a22b-instruct",
+        "--prompt", "formal",
+        "--input", "data/polished/test_polished_variables_qwen.json",
+        "--output", "predictions/qwen_normalized_formal.json"
+    ],
+
+    # ===== GEMINI EXPERIMENTS =====
+
+    # Gemini - Raw test data + direct prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "google/gemini-3-flash-preview",
+        "--prompt", "direct",
+        "--input", "test_data/subtask 1/test_data_subtask_1.json",
+        "--output", "predictions/gemini_raw_direct.json"
+    ],
+
+    # Gemini - Normalized test data + direct prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "google/gemini-3-flash-preview",
+        "--prompt", "direct",
+        "--input", "data/polished/test_polished_variables_gemini.json",
+        "--output", "predictions/gemini_normalized_direct.json"
+    ],
+
+    # Gemini - Normalized test data + formal prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "google/gemini-3-flash-preview",
+        "--prompt", "formal",
+        "--input", "data/polished/test_polished_variables_gemini.json",
+        "--output", "predictions/gemini_normalized_formal.json"
+    ],
+
+    # ===== OPUS EXPERIMENTS =====
+
+    # Opus - Raw test data + direct prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "anthropic/claude-opus-4.5",
+        "--prompt", "direct",
+        "--input", "test_data/subtask 1/test_data_subtask_1.json",
+        "--output", "predictions/opus_raw_direct.json"
+    ],
+
+    # Opus - Normalized test data + direct prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "anthropic/claude-opus-4.5",
+        "--prompt", "direct",
+        "--input", "data/polished/test_polished_variables_opus.json",
+        "--output", "predictions/opus_normalized_direct.json"
+    ],
+
+    # Opus - Normalized test data + formal prompt
+    [
+        "experiments/run_experiment.py",
+        "--model", "anthropic/claude-opus-4.5",
+        "--prompt", "formal",
+        "--input", "data/polished/test_polished_variables_opus.json",
+        "--output", "predictions/opus_normalized_formal.json"
+    ],
 ]
 
-# Input files based on data source
-INPUT_ORIGINAL = "train_data/subtask 1/train_data.json"
-INPUT_POLISHED = "train_data/subtask 1/polished_syllogisms_variables_opus.json"
-# Reference file (ground truth) - always use train_data.json since it has validity labels
-REFERENCE_FILE = "train_data/subtask 1/train_data.json"
 
+SHLEX_POSIX = os.name != "nt"
 
-def get_data_source(checkpoint_path: str) -> str:
-    """Extract data source from checkpoint path."""
-    parent_name = Path(checkpoint_path).parent.name
-    for source in ["original", "gemini", "opus", "qwen"]:
-        if parent_name.endswith(f"_{source}"):
-            return source
-    return "unknown"
+def normalize_tasks(raw: List[Union[str, List[str]]]) -> List[List[str]]:
+    out: List[List[str]] = []
+    for t in raw:
+        if isinstance(t, str):
+            parts = shlex.split(t, posix=SHLEX_POSIX)
+        elif isinstance(t, list):
+            parts = [str(x) for x in t]
+        else:
+            raise TypeError("Each task must be a string or list of strings.")
+        if parts:
+            out.append(parts)
+    return out
 
-
-def get_model_name(checkpoint_path: str) -> str:
-    """Extract model name from checkpoint path."""
-    return Path(checkpoint_path).parent.name
-
+def run_command(cmd_parts: List[str]) -> Tuple[int, str]:
+    # Use -u flag for unbuffered output so we see prints in real-time
+    full_cmd = [sys.executable, "-u", *cmd_parts]
+    try:
+        # Explicitly pass through stdout/stderr and flush output
+        rc = subprocess.run(
+            full_cmd,
+            check=False,
+            env=os.environ.copy(),
+            stdout=None,  # Pass through to parent stdout
+            stderr=None,  # Pass through to parent stderr
+        ).returncode
+        return rc, " ".join(full_cmd)
+    except Exception as e:
+        print(f"[Runner] Unexpected error: {e}", file=sys.stderr)
+        return 255, " ".join(full_cmd)
 
 def main():
-    results = []
+    if not TASKS:
+        print("No tasks defined.")
+        sys.exit(2)
 
-    for checkpoint in CHECKPOINTS:
-        model_name = get_model_name(checkpoint)
-        data_source = get_data_source(checkpoint)
+    tasks = normalize_tasks(TASKS)
 
-        # Select input file based on data source
-        if data_source == "original":
-            input_file = INPUT_ORIGINAL
-        else:
-            input_file = INPUT_POLISHED
+    results: List[Tuple[int, str]] = []
+    for i, parts in enumerate(tasks, 1):
+        print(f"\n[Runner] ({i}/{len(tasks)}) Starting: {parts[0]} {' '.join(parts[1:])}")
+        rc, cmd_str = run_command(parts)
+        status = "OK" if rc == 0 else f"ERROR (rc={rc})"
+        print(f"[Runner] Finished: {status}")
+        results.append((rc, cmd_str))
 
-        output_file = f"predictions/bert_{model_name}.json"
+    print("\n===== SUMMARY =====")
+    failed = 0
+    for rc, cmd_str in results:
+        mark = "OK" if rc == 0 else f"ERROR (rc={rc})"
+        print(f"{mark}  |  {cmd_str}")
+        if rc != 0:
+            failed += 1
 
-        print()
-        print("=" * 60)
-        print(f"Running: {model_name}")
-        print(f"Data source: {data_source}")
-        print(f"Input: {input_file}")
-        print("=" * 60)
-
-        cmd = [
-            sys.executable,
-            "experiments/run_bert_experiment.py",
-            "--checkpoint", checkpoint,
-            "--input", input_file,
-            "--output", output_file,
-            "--evaluate",
-            "--reference", REFERENCE_FILE,
-        ]
-
-        try:
-            result = subprocess.run(cmd, check=True)
-            results.append((model_name, "SUCCESS"))
-        except subprocess.CalledProcessError as e:
-            print(f"ERROR: {model_name} failed with exit code {e.returncode}")
-            results.append((model_name, "FAILED"))
-        except KeyboardInterrupt:
-            print("\nInterrupted by user")
-            break
-
-    # Print summary
-    print()
-    print("=" * 60)
-    print("SUMMARY")
-    print("=" * 60)
-    for model_name, status in results:
-        print(f"  {model_name}: {status}")
-    print("=" * 60)
-
+    sys.exit(0 if failed == 0 else min(failed, 255))
 
 if __name__ == "__main__":
     main()
